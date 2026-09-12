@@ -40,7 +40,7 @@ logPathFor(file: string): string; // 'ledger.db' -> 'ledger.log'
 | conflicts | `conflicts(): Promise<Record<string, unknown>[]>` | rows `conflicts WHERE status = 'open'` for human reconciliation |
 | ackSeq | `ackSeq(): number` | local seq already acked by the relay |
 | serverTime | `serverTime(): number \| null` | latest authoritative `server_time` |
-| verifyLog | `verifyLog(): { ok, at?, reason?, gaps? }` | hash-chain verification |
+| verifyLog | `verifyLog(): { ok, at?, reason?, gaps?, skipped: number }` | hash-chain verification; `skipped` always present (poison lines skipped on open-time replay) |
 | health | `health(): { events, quarantined, repairedTail, gaps }` | log health: corrupt lines, torn tail, gaps |
 | snapshot | `snapshot(dest?: string): Promise<SnapshotInfo>` | full db copy + acked-prefix seal |
 | truncate | `truncate(): Promise<TruncateInfo>` | sweeps the sealed prefix; no-op when unsealed |

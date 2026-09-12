@@ -67,7 +67,7 @@ describe('kernel-skipped', () => {
       const k2 = await createKernel({ file });
       try {
         assert.equal(k2.health().skipped, 0);
-        assert.equal(k2.verifyLog().skipped, undefined);
+        assert.equal(k2.verifyLog().skipped, 0);
         assert.ok(!warns.some((w) => w.includes('WARN_REPLAY_SKIPPED')));
       } finally {
         k2.close();

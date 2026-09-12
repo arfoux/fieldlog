@@ -47,6 +47,6 @@ describe('offline device flow', () => {
       const ev = JSON.parse(line);
       assert.ok(ev.id && ev.hash && ev.prev_hash);
     }
-    assert.deepEqual(k.verifyLog(), { ok: true });
+    assert.deepEqual(k.verifyLog(), { ok: true, skipped: 0 });
   });
 });

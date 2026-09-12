@@ -65,7 +65,7 @@ describe('tombstone-guard-wire', () => {
     // The held event's bytes are still on disk and still queryable.
     const rows = await k.query<{ id: string }>(`SELECT id FROM _events WHERE id = '${safeId}'`);
     assert.equal(rows.length, 1);
-    assert.deepEqual(k.verifyLog(), { ok: true });
+    assert.deepEqual(k.verifyLog(), { ok: true, skipped: 0 });
   });
 
   it('truncate never splits a hide/target pair across the sweep', async () => {
@@ -88,6 +88,6 @@ describe('tombstone-guard-wire', () => {
     assert.ok(cut.pairs.length > 0, 'expected the split pair to be reported');
     const rows = await k.query<{ n: number }>(`SELECT COUNT(*) AS n FROM _events`);
     assert.equal(rows[0].n, 3);
-    assert.deepEqual(k.verifyLog(), { ok: true });
+    assert.deepEqual(k.verifyLog(), { ok: true, skipped: 0 });
   });
 });

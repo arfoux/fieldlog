@@ -52,7 +52,7 @@ describe('retention', () => {
     assert.deepEqual(cut, { removed: N, kept: 0, sealedSeq: N, held: [], pairs: [] });
     const after = statSync(k.logPath).size;
     assert.ok(after < before / 10, `log did not shrink: ${before} -> ${after}`);
-    assert.deepEqual(k.verifyLog(), { ok: true });
+    assert.deepEqual(k.verifyLog(), { ok: true, skipped: 0 });
     assert.deepEqual(k.health().gaps, []);
 
     // The db still answers in full after the sweep...
@@ -67,7 +67,7 @@ describe('retention', () => {
     closers.pop();
     const k2 = await createKernel({ file });
     closers.push(() => k2.close());
-    assert.deepEqual(k2.verifyLog(), { ok: true });
+    assert.deepEqual(k2.verifyLog(), { ok: true, skipped: 0 });
     const rows2 = await k2.query<{ total: number }>(`SELECT SUM(value) AS total FROM entries WHERE voided = 0`);
     assert.equal(rows2[0].total, expected);
 

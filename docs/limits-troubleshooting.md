@@ -23,6 +23,7 @@ Honest limits + ways out of common problems. No false promises.
   [tombstone-engine](tombstone-engine.md)).
 - `quota.ts` is standalone: no kernel wiring; callers reserve manually
   (see [quota-guard](quota-guard.md)).
+- No `quotaLimitBytes` on `createKernel` = uncapped growth by design; boot logs one `WARN_UNCAPPED` ("set quotaLimitBytes") and stays silent once a quota is set.
 - `deltasync.ts` has no signature verification: only for trusted same-operator
   replicas (see [sync-protocol](sync-protocol.md)).
 - The 100k bench query needs a ~259 s one-time build; latencies in

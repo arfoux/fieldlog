@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS _events(
   hash TEXT NOT NULL,
   prev_hash TEXT NOT NULL
 );
-CREATE TABLE IF NOT EXISTS _swept_ids(id TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS _swept_ids(id TEXT PRIMARY KEY, seq INTEGER NOT NULL DEFAULT 0);
 CREATE TABLE IF NOT EXISTS _meta(k TEXT PRIMARY KEY, v TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS entries(
   seq INTEGER PRIMARY KEY,
@@ -162,6 +162,13 @@ export interface EventStore {
    * forgiving the swept prefix below `forgiveBelow`. Returns excised count.
    */
   exciseMissing(kept: number[], forgiveBelow: number): number;
+  /**
+   * Compact the swept-UUID reuse-guard table: drop guards with seq below
+   * `beforeSeq` (default: lowest retained `_events` seq). Guards below the
+   * retained floor can never meet a live seq again — seqs are never reused
+   * across sweeps — so they only grow the table. Returns pruned count.
+   */
+  pruneSweptIds?(beforeSeq?: number): number;
   query<T = Record<string, unknown>>(sql: string, params?: SqlParams): T[];
   /** Raw DDL/admin (VACUUM INTO for snapshots). No placeholder support. */
   exec(sql: string): void;
@@ -175,6 +182,16 @@ export interface EventStore {
 export function openStore(path: string): EventStore {
   const db = openDb(path);
   db.exec(SCHEMA);
+  // Migration: guards learned their excised seq so pruneSweptIds can compact
+  // below the retained floor. Legacy rows keep seq 0 (unknown — never pruned).
+  try {
+    const cols = all<{ name: string }>(db, `PRAGMA table_info(_swept_ids)`);
+    if (!cols.some((c) => c.name === 'seq') && cols.length > 0) {
+      run(db, `ALTER TABLE _swept_ids ADD COLUMN seq INTEGER NOT NULL DEFAULT 0`);
+    }
+  } catch {
+    /* fresh schema above already carries seq; read path must not throw */
+  }
 
   /** Fail-closed tamper gate: a well-formed line with an edited payload must never merge silently. */
   function assertUntampered(ev: LogEvent): void {
@@ -506,6 +523,35 @@ export function openStore(path: string): EventStore {
     }
   }
 
+  // Compact swept-UUID reuse guards below a retained floor. Guards carry the
+  // excised seq; seqs never repeat across sweeps, so a guard below the floor
+  // can never shadow a live row again. Legacy seq-0 rows (unknown) stay.
+  function pruneSweptIdsImpl(floor: number | undefined): number {
+    let f = floor;
+    if (f === undefined) {
+      const m = all<{ m: number | null }>(db, `SELECT MIN(seq) AS m FROM _events`);
+      if (m[0]?.m === null || m[0]?.m === undefined) return 0; // empty read-model: no floor known
+      f = m[0].m as number;
+    }
+    if (!(f > 0)) return 0;
+    // Own transaction: excise above commits separately; a prune failure must
+    // never roll back the excise it compacts.
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      run(db, `DELETE FROM _swept_ids WHERE seq > 0 AND seq < ?`, f);
+      const n = all<{ n: number }>(db, `SELECT changes() AS n`);
+      db.exec('COMMIT');
+      return n[0]?.n ?? 0;
+    } catch (err) {
+      try {
+        db.exec('ROLLBACK');
+      } catch {
+        /* already rolled back */
+      }
+      throw err;
+    }
+  }
+
   const store: EventStore = {
     apply(ev: LogEvent): void {
       assertUntampered(ev);
@@ -562,40 +608,49 @@ export function openStore(path: string): EventStore {
       const have = new Set(kept);
       const rows = all<{ seq: number; id: string }>(db, `SELECT seq, id FROM _events`);
       const gone = rows.filter((r) => !have.has(r.seq) && r.seq >= forgiveBelow);
-      if (gone.length === 0) return 0;
       // One transaction: a failure mid-sweep (disk, lock, trigger) rolls the
       // whole excise back instead of leaving half-deleted views behind, and
       // the tally rebuild below commits atomically with the deletes above.
-      db.exec('BEGIN IMMEDIATE');
-      try {
-        let moves = 0;
-        for (const g of gone) {
-          run(db, `DELETE FROM entries WHERE event_id = ?`, g.id);
-          const m = all<{ n: number }>(db, `SELECT COUNT(*) AS n FROM tally_moves WHERE event_id = ?`, g.id);
-          if (m[0]?.n) moves += 1;
-          run(db, `DELETE FROM tally_moves WHERE event_id = ?`, g.id);
-          run(db, `DELETE FROM records WHERE event_id = ?`, g.id);
-          run(db, `DELETE FROM _events WHERE id = ?`, g.id);
-          run(db, `INSERT OR IGNORE INTO _swept_ids(id) VALUES(?)`, g.id);
-        }
-        if (moves > 0) {
-          // Balances derive from moves: rebuild so excised tally stops counting.
-          db.exec('DELETE FROM tally');
-          run(
-            db,
-            `INSERT INTO tally(item, qty) SELECT item, SUM(qty) FROM tally_moves WHERE voided = 0 GROUP BY item`,
-          );
-        }
-        db.exec('COMMIT');
-      } catch (err) {
+      let n = 0;
+      if (gone.length > 0) {
+        db.exec('BEGIN IMMEDIATE');
         try {
-          db.exec('ROLLBACK');
-        } catch {
-          /* already rolled back */
+          let moves = 0;
+          for (const g of gone) {
+            run(db, `DELETE FROM entries WHERE event_id = ?`, g.id);
+            const m = all<{ n: number }>(db, `SELECT COUNT(*) AS n FROM tally_moves WHERE event_id = ?`, g.id);
+            if (m[0]?.n) moves += 1;
+            run(db, `DELETE FROM tally_moves WHERE event_id = ?`, g.id);
+            run(db, `DELETE FROM records WHERE event_id = ?`, g.id);
+            run(db, `DELETE FROM _events WHERE id = ?`, g.id);
+            run(db, `INSERT OR IGNORE INTO _swept_ids(id, seq) VALUES(?, ?)`, g.id, g.seq);
+          }
+          if (moves > 0) {
+            // Balances derive from moves: rebuild so excised tally stops counting.
+            db.exec('DELETE FROM tally');
+            run(
+              db,
+              `INSERT INTO tally(item, qty) SELECT item, SUM(qty) FROM tally_moves WHERE voided = 0 GROUP BY item`,
+            );
+          }
+          db.exec('COMMIT');
+        } catch (err) {
+          try {
+            db.exec('ROLLBACK');
+          } catch {
+            /* already rolled back */
+          }
+          throw err;
         }
-        throw err;
+        n = gone.length;
       }
-      return gone.length;
+      // Compact guards swept by older floors even when nothing new excised:
+      // a sweep that only advances the floor still retires old guards.
+      pruneSweptIdsImpl(forgiveBelow);
+      return n;
+    },
+    pruneSweptIds(beforeSeq?: number): number {
+      return pruneSweptIdsImpl(beforeSeq);
     },
     exec(sql: string): void {
       db.exec(sql);

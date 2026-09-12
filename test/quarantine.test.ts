@@ -58,7 +58,7 @@ describe('revoke quarantine', () => {
       assert.equal(res2.pulled, 0);
       assert.equal(res2.applied, 0);
       assert.equal(res2.quarantined, 0);
-      assert.deepEqual(k.verifyLog(), { ok: true });
+      assert.deepEqual(k.verifyLog(), { ok: true, skipped: 0 });
     } finally {
       k.close();
     }

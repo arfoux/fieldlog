@@ -75,7 +75,7 @@ describe('forgery pull gate', () => {
       const res2 = await k.sync(relay, opts);
       assert.equal(res2.pulled, 0);
       assert.equal(res2.applied, 0);
-      assert.deepEqual(k.verifyLog(), { ok: true });
+      assert.deepEqual(k.verifyLog(), { ok: true, skipped: 0 });
     } finally {
       k.close();
     }

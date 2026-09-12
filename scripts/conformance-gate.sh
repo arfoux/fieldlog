@@ -4,17 +4,21 @@
 # Checks (each prints PASS/FAIL with a reason; any FAIL => GATE: FAIL, exit 1):
 #   1. base   — branch forked from the newest main tip (merge-base == main tip).
 #   2. tree   — working tree clean (no staged/unstaged/untracked changes).
-#   3. tests  — `bun test` reports at least EXPECTED_PASS passes and 0 failures.
+#   3. tests  — `bun test` reports at least EXPECTED_PASS passes and 0 failures (floor: never below last green total).
 #   4. scope  — every file changed in merge-base...HEAD is inside the allowlist.
 #
 # Usage:
 #   bash scripts/conformance-gate.sh [--expected-pass N] [--main-ref REF]
 #
-# Env overrides: GATE_EXPECTED_PASS (default 66), GATE_MAIN_REF (default main).
+# Env overrides: GATE_EXPECTED_PASS (default 258), GATE_MAIN_REF (default main).
 set -u
 set -o pipefail
 
-EXPECTED_PASS="${GATE_EXPECTED_PASS:-66}"
+# Floor: EXPECTED_PASS pins the last green total (258 pass, 0 fail on main
+# 2026-09-13). Silent test shrinkage fails check 3 loud. Update only on
+# intentional add/remove: re-run `bun test`, read the "N pass" line, set the
+# default below to N.
+EXPECTED_PASS="${GATE_EXPECTED_PASS:-258}"
 MAIN_REF="${GATE_MAIN_REF:-main}"
 ALLOWLIST="scripts/conformance-gate.sh docs/conformance-gate.md"
 

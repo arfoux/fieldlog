@@ -87,7 +87,7 @@ export interface Kernel {
   conflicts(): Promise<Record<string, unknown>[]>;
   ackSeq(): number;
   serverTime(): number | null;
-  verifyLog(): { ok: boolean; at?: number; reason?: string; gaps?: number[]; skipped?: number };
+  verifyLog(): { ok: boolean; at?: number; reason?: string; gaps?: number[]; skipped: number };
   health(): LogHealth;
   /** Current quota snapshot, or null when no quotaLimitBytes was configured. */
   quota(): QuotaStatus | null;
@@ -164,6 +164,7 @@ export async function createKernel(opts: KernelOpts): Promise<Kernel> {
     opts.quotaLimitBytes === undefined
       ? null
       : openQuotaGuard({ limitBytes: opts.quotaLimitBytes, files: [dbPath, logPath] });
+  if (!quota) console.warn(`WARN_UNCAPPED: no quotaLimitBytes set — uncapped growth; set quotaLimitBytes to bound disk usage ('${dbPath}')`);
   const quotaFixed = opts.quotaEstimateBytes;
   if (quotaFixed !== undefined && (!Number.isInteger(quotaFixed) || quotaFixed < 1)) {
     throw new Error(`quotaEstimateBytes must be a positive integer, got ${opts.quotaEstimateBytes}`);
@@ -277,7 +278,7 @@ export async function createKernel(opts: KernelOpts): Promise<Kernel> {
     serverTime: () => getServerTime(store),
     verifyLog: () => {
       const v = log.verify();
-      return replaySkipped > 0 ? { ...v, skipped: replaySkipped } : v;
+      return { ...v, skipped: replaySkipped };
     },
     health: () => {
       const v = log.verify();

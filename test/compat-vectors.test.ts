@@ -85,7 +85,7 @@ describe('compat vectors (healthy set)', () => {
         for (const key of STRIP) delete stripped[key];
         assert.equal(hashFor(stripped as Parameters<typeof hashFor>[0]), hash);
       }
-      assert.deepEqual(kernels.get(f.file)!.verifyLog(), { ok: true });
+      assert.deepEqual(kernels.get(f.file)!.verifyLog(), { ok: true, skipped: 0 });
     }
   });
 
@@ -110,7 +110,7 @@ describe('compat vectors (healthy set)', () => {
       const ev = await k.append({ type: 'entry', value: 1000, actor: 'healthy' });
       assert.equal(ev.seq, f.events + 1);
       assert.equal(ev.prev_hash, tip);
-      assert.deepEqual(k.verifyLog(), { ok: true });
+      assert.deepEqual(k.verifyLog(), { ok: true, skipped: 0 });
       for (const line of readFileSync(k.logPath, 'utf8').trim().split('\n')) {
         const parsed = JSON.parse(line) as Record<string, unknown>;
         for (const key of Object.keys(parsed)) {

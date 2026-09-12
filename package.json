@@ -16,7 +16,7 @@
     "CHANGELOG.md"
   ],
   "bin": {
-    "fielog": "./bin/fielog.ts"
+    "fielog": "./bin/fielog.js"
   },
   "scripts": {
     "test": "bun test",

@@ -42,7 +42,7 @@ describe('compat v05 log', () => {
   });
 
   it('current kernel opens + verifies + replays the v05 log', async () => {
-    assert.deepEqual(k.verifyLog(), { ok: true });
+    assert.deepEqual(k.verifyLog(), { ok: true, skipped: 0 });
     assert.equal(k.health().events, 5);
     const entry = await k.query<{ n: number; total: number }>(
       `SELECT COUNT(*) AS n, SUM(value) AS total FROM entries WHERE voided = 0`,
@@ -58,7 +58,7 @@ describe('compat v05 log', () => {
     const ev = await k.append({ type: 'entry', value: 5000, actor: 'agus' });
     assert.equal(ev.seq, 6);
     assert.equal(ev.prev_hash, tip);
-    assert.deepEqual(k.verifyLog(), { ok: true });
+    assert.deepEqual(k.verifyLog(), { ok: true, skipped: 0 });
     const rows = await k.query<{ total: number }>(`SELECT SUM(value) AS total FROM entries WHERE voided = 0`);
     assert.equal(rows[0].total, 45000);
   });

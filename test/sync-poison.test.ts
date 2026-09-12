@@ -51,7 +51,7 @@ describe('poison pull', () => {
       await relay.push([good3]);
       const res3 = await k.sync(relay, { chunkSize: 10, ...fast });
       assert.equal(res3.applied, 1);
-      assert.deepEqual(k.verifyLog(), { ok: true });
+      assert.deepEqual(k.verifyLog(), { ok: true, skipped: 0 });
     } finally {
       k.close();
     }

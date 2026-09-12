@@ -11,14 +11,14 @@ Exit code is 0 only when all four checks pass.
 |---|---------|------|----------------|
 | 1 | `base`  | `git merge-base HEAD <main-ref>` equals the `<main-ref>` tip (default `main`) | `merge-base X != main tip Y; rebase onto main`, or `ref not found` |
 | 2 | `tree`  | `git status --porcelain` is empty | `dirty: <first 5 lines>` |
-| 3 | `tests` | `bun test` reports at least `EXPECTED_PASS` passes and `0` failures (default 66/0) | `bun test P/F, expected >=E/0` |
+| 3 | `tests` | `bun test` reports at least `EXPECTED_PASS` passes and `0` failures (default 258/0; floor pins last green total) | `bun test P/F, expected >=E/0` |
 | 4 | `scope` | every file in `git diff --name-only <base>...HEAD` is in the spin allowlist (`scripts/conformance-gate.sh`, `docs/conformance-gate.md`) | `out-of-scope: <files>; allowlist: ...` |
 
 ## Usage
 
 ```sh
 bash scripts/conformance-gate.sh [--expected-pass N] [--main-ref REF]
-GATE_EXPECTED_PASS=66 GATE_MAIN_REF=main bash scripts/conformance-gate.sh
+GATE_EXPECTED_PASS=258 GATE_MAIN_REF=main bash scripts/conformance-gate.sh
 ```
 
 `--expected-pass` exists so a spin can pin its own green count, and so a
@@ -26,12 +26,12 @@ FAIL can be simulated on purpose (see below). `GATE_*` env vars do the same.
 
 ## Proving the gate (w2-conformance-gate)
 
-1. Own worktree, committed, on top of `main` tip `a9a6b41`:
+1. Own worktree, committed, on top of `main` tip `3308938`:
    `bash scripts/conformance-gate.sh` must print `GATE: PASS` with
-   `tests (bun test 66/0, expected 66/0)`.
-2. Simulated FAIL: `bash scripts/conformance-gate.sh --expected-pass 64`
+   `tests (bun test 258/0, expected 258/0)`.
+2. Simulated FAIL: `bash scripts/conformance-gate.sh --expected-pass 259`
    must print `GATE: FAIL` with
-   `FAIL: tests (bun test 66/0, expected 64/0)`.
+   `FAIL: tests (bun test 258/0, expected 259/0)`.
 
 Full `bun test` takes ~270 s (model-fuzz oracle + soak dominate), so each
 proof run takes about five minutes. Phase-2 (merge + tag) runs only on

@@ -161,7 +161,7 @@ describe('soak-runner', () => {
       assert.equal(k.ackSeq(), 10);
       const cut = await k.truncate();
       assert.deepEqual(cut, { removed: 10, kept: 3, sealedSeq: 10, held: [], pairs: [] });
-      assert.deepEqual(k.verifyLog(), { ok: true });
+      assert.deepEqual(k.verifyLog(), { ok: true, skipped: 0 });
       const rows = await k.query<{ total: number; n: number }>(
         `SELECT SUM(value) AS total, COUNT(*) AS n FROM entries WHERE voided = 0`,
       );
@@ -175,7 +175,7 @@ describe('soak-runner', () => {
       assert.equal(snap3.sealedSeq, 13);
       const cut2 = await k.truncate();
       assert.deepEqual(cut2, { removed: 3, kept: 0, sealedSeq: 13, held: [], pairs: [] });
-      assert.deepEqual(k.verifyLog(), { ok: true });
+      assert.deepEqual(k.verifyLog(), { ok: true, skipped: 0 });
       const rows2 = await k.query<{ total: number }>(`SELECT SUM(value) AS total FROM entries WHERE voided = 0`);
       assert.equal(rows2[0].total, expected);
       console.log('[soak-runner] killer=seal-collision removed=10+3 kept=3+0 suffix_intact=true');

@@ -66,7 +66,7 @@ describe('corpus-gen replay', () => {
         }
       }
       await checkOracle(q, o, 'corpus-gen seed=42', `sha=${m.sha.slice(0, 12)} n=200`);
-      assert.deepEqual(k.verifyLog(), { ok: true });
+      assert.deepEqual(k.verifyLog(), { ok: true, skipped: 0 });
       console.log(
         `[corpus-gen] replay seed=42 n=200 sha=${m.sha.slice(0, 12)} ` +
           `entry=${m.counts.entry} add=${m.counts.add} remove=${m.counts.remove} undo=${m.counts.undo} verify=ok`,
