@@ -7,7 +7,7 @@ import { createKernel, logPathFor } from '../src/kernel.ts';
 
 describe('kernel-skipped', () => {
   it('poison line is surfaced via health/verifyLog with a warn on every reopen', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-skipped-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-skipped-'));
     const file = join(dir, 'ledger.db');
     const k1 = await createKernel({ file });
     await k1.append({ type: 'entry', value: 1, actor: 'device' });
@@ -54,7 +54,7 @@ describe('kernel-skipped', () => {
   });
 
   it('clean log reports skipped 0 with no warn', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-skipped-clean-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-skipped-clean-'));
     const file = join(dir, 'ledger.db');
     const k1 = await createKernel({ file });
     await k1.append({ type: 'entry', value: 1, actor: 'device' });

@@ -2,7 +2,7 @@
 // capability tokens, fixed port 8091. NEVER copy-paste this into production.
 // Production is always the signed path: `serve --trust <id=pub.pem>` +
 // `sync --key <priv.pem> --as <device>` (capability token), or the signed
-// demo `bun bin/fielog.ts demo` (ephemeral port, minted keys + cap tokens).
+// demo `bun bin/fieldlog.ts demo` (ephemeral port, minted keys + cap tokens).
 // This demo's unsigned rows cannot upgrade to signed mode — start fresh.
 // run: bun demo/two-node.ts
 // Two nodes, one relay: device-01 records 20 events fully offline, then both
@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createKernel, WsRelayServer, WsRelayClient } from '../src/index.ts';
 
-console.warn('[fielog] WARNING: unsigned dev-only demo — no signatures, no cap tokens. For production use `serve --trust` + `sync --key/--as`, or the signed demo `bun bin/fielog.ts demo`.');
+console.warn('[fieldlog] WARNING: unsigned dev-only demo — no signatures, no cap tokens. For production use `serve --trust` + `sync --key/--as`, or the signed demo `bun bin/fieldlog.ts demo`.');
 const dir = mkdtempSync(join(tmpdir(), 'two-node-'));
 const server = new WsRelayServer({ port: 8091, file: join(dir, 'relay.log') });
 await server.start();

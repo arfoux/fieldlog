@@ -25,7 +25,7 @@ describe('relay failover', () => {
   });
 
   it('primary dies mid-sync: run completes via secondary, exact-once', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-failover-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-failover-'));
     const k = await createKernel({ file: join(dir, 'ledger.db') });
     closers.push(() => k.close());
     for (let i = 0; i < 20; i++) {
@@ -71,7 +71,7 @@ describe('relay failover', () => {
   });
 
   it('re-probes the healed primary and fails back to list order', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-failback-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-failback-'));
     const k = await createKernel({ file: join(dir, 'ledger.db') });
     closers.push(() => k.close());
     for (let i = 0; i < 5; i++) {
@@ -103,7 +103,7 @@ describe('relay failover', () => {
   });
 
   it('all relays down rejects without moving the cursor', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-failover-down-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-failover-down-'));
     const k = await createKernel({ file: join(dir, 'ledger.db') });
     closers.push(() => k.close());
     await k.append({ type: 'entry', value: 100, actor: 'budi' });
@@ -117,7 +117,7 @@ describe('relay failover', () => {
   });
 
   it('real sockets: primary killed mid-sync, secondary finishes the run', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-failover-ws-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-failover-ws-'));
     const serverA = new WsRelayServer({ port: 0, file: join(dir, 'a.log') });
     const serverB = new WsRelayServer({ port: 0, file: join(dir, 'b.log') });
     closers.push(() => serverA.kill(), () => serverB.kill());

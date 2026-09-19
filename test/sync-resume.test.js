@@ -13,7 +13,7 @@ describe('sync resume mid-batch', () => {
   let k;
   let relay;
   beforeEach(async () => {
-    dir = mkdtempSync(join(tmpdir(), 'fielog-sync-'));
+    dir = mkdtempSync(join(tmpdir(), 'fieldlog-sync-'));
     k = await createKernel({ file: join(dir, 'ledger.db') });
     relay = new MemoryRelay();
     for (let i = 0; i < 20; i++) {

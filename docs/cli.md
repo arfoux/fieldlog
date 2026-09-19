@@ -1,10 +1,10 @@
 # cli
 
-Reference for `bin/fielog.ts`. Every flag below is verified against the code —
+Reference for `bin/fieldlog.ts`. Every flag below is verified against the code —
 anything absent from `usage()` / `arg()` is not documented.
 
 ```
-usage: fielog <serve|sync|demo> [options]
+usage: fieldlog <serve|sync|demo> [options]
 ```
 
 ## `serve` — run the file-backed ws relay (`cmdServe`)
@@ -17,15 +17,15 @@ usage: fielog <serve|sync|demo> [options]
 | `--unsigned` | alternative to `--trust` | legacy open relay: accepts any `device_id`. Local dev only |
 
 Without `--trust` and without `--unsigned` → `die('serve needs --trust ...')`,
-exit 2. While running, it prints `fielog relay listening ws://127.0.0.1:<port>
+exit 2. While running, it prints `fieldlog relay listening ws://127.0.0.1:<port>
 file=<file>` + `ready port=<port>`; lives until `SIGINT`/`SIGTERM`.
 
 ```sh
 # one time only: mint the device key (standard PEM: PRIV PKCS#8, PUB SPKI)
 openssl genpkey -algorithm ed25519 -out device-01.priv
 openssl pkey -in device-01.priv -pubout -out device-01.pub
-bun bin/fielog.ts serve --port 8091 --file ./relay.log --trust device-01=./device-01.pub
-bun bin/fielog.ts serve --port 8091 --file ./relay.log --unsigned   # dev only
+bun bin/fieldlog.ts serve --port 8091 --file ./relay.log --trust device-01=./device-01.pub
+bun bin/fieldlog.ts serve --port 8091 --file ./relay.log --unsigned   # dev only
 ```
 
 ## `sync` — push+pull the delta of one kernel file (`cmdSync`)
@@ -45,13 +45,13 @@ defaults to 10 in `pushPending`) — for bulk use the `kernel.sync` API with
 `{ chunkSize: 500 }`.
 
 ```sh
-bun bin/fielog.ts sync --file ./ledger.db --relay ws://127.0.0.1:8091 --key ./device-01.priv --as device-01
-bun bin/fielog.ts sync --file ./app.db --relay ws://127.0.0.1:8091 --unsigned   # dev only
+bun bin/fieldlog.ts sync --file ./ledger.db --relay ws://127.0.0.1:8091 --key ./device-01.priv --as device-01
+bun bin/fieldlog.ts sync --file ./app.db --relay ws://127.0.0.1:8091 --unsigned   # dev only
 ```
 
 ## `demo` — two demos, one regime each (no flags)
 
-`bun bin/fielog.ts demo` (`cmdDemo`): 20 offline entries on device-01,
+`bun bin/fieldlog.ts demo` (`cmdDemo`): 20 offline entries on device-01,
 two-sided SIGNED-mode sync over an ephemeral port, then proves
 `device-01 == device-02 == expected`, else exit 1. Output:
 `sync: device-01 = ... | device-02 = ... | expected = ...` and

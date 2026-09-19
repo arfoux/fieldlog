@@ -24,7 +24,7 @@ describe('two-device rig device-01/device-02', () => {
   let k2: Kernel;
   let relay: MemoryRelay;
   beforeEach(async () => {
-    dir = mkdtempSync(join(tmpdir(), 'fielog-rig-'));
+    dir = mkdtempSync(join(tmpdir(), 'fieldlog-rig-'));
     k1 = await createKernel({ file: join(dir, 'device-01.db'), deviceId: 'device-01' });
     k2 = await createKernel({ file: join(dir, 'device-02.db'), deviceId: 'device-02' });
     relay = new MemoryRelay();

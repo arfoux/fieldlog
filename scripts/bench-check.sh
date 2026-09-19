@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bench-check.sh - honesty gate for fielog benchmarks (port of skill-7).
+# bench-check.sh - honesty gate for fieldlog benchmarks (port of skill-7).
 #
 # A bench number is accepted only with three pins attached:
 #   1. slice  - exact code version (git HEAD hash).

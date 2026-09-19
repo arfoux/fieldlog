@@ -1,6 +1,6 @@
 # soak runner
 
-Port of skill-3 (`soak-runner`, status SOLID) to fielog.
+Port of skill-3 (`soak-runner`, status SOLID) to fieldlog.
 One script drives seeded random interleavings of `append` / `seal`
 (`snapshot` + `truncate`) / `sync` / `restart`, checking invariants every
 N steps and at the end. The killer case is seal collision: colliding

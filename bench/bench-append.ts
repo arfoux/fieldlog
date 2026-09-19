@@ -7,7 +7,7 @@ import { createKernel } from '../src/kernel.ts';
 import { parseN, summarize } from './util.ts';
 
 const N = parseN(process.argv, 5000);
-const dir = mkdtempSync(join(tmpdir(), 'fielog-bench-append-'));
+const dir = mkdtempSync(join(tmpdir(), 'fieldlog-bench-append-'));
 const kernel = await createKernel({ file: join(dir, 'bench.db') });
 
 const per: number[] = [];

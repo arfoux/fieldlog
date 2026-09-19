@@ -1,4 +1,4 @@
-// corpus-gen: deterministic synthetic corpus for fielog spins.
+// corpus-gen: deterministic synthetic corpus for fieldlog spins.
 // Port of skill-10 (corpus-generator, status HEALTHY): seeded mulberry32 emits
 // a fixed op mix (entry / tally.add / tally.remove / undo.compensate) with
 // deterministic ids, so the same (seed, n) always yields byte-identical JSONL.

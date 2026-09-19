@@ -16,7 +16,7 @@ describe('tombstone atomic', () => {
   afterEach(() => { while (closers.length) closers.pop()!(); });
 
   it('concurrent double hide appends exactly one hide', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-tomb-atomic-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-tomb-atomic-'));
     const k = await createKernel({ file: join(dir, 'ledger.db') });
     const target = await k.append({ type: 'note', payload: {} });
     const [a, b] = await Promise.all([hide(k, target.id), hide(k, target.id)]);
@@ -28,8 +28,8 @@ describe('tombstone atomic', () => {
   });
 
   it('show rejects a mismatched store pair', async () => {
-    const s1 = openStore(join(mkdtempSync(join(tmpdir(), 'fielog-tm1-')), 'a.db'));
-    const s2 = openStore(join(mkdtempSync(join(tmpdir(), 'fielog-tm2-')), 'b.db'));
+    const s1 = openStore(join(mkdtempSync(join(tmpdir(), 'fieldlog-tm1-')), 'a.db'));
+    const s2 = openStore(join(mkdtempSync(join(tmpdir(), 'fieldlog-tm2-')), 'b.db'));
     closers.push(() => s1.close(), () => s2.close());
     s1.apply(mkEv(1, 't1'));
     s2.apply(mkEv(1, 't1'));
@@ -44,7 +44,7 @@ describe('tombstone atomic', () => {
   });
 
   it('show rejects when kernel view and store disagree', async () => {
-    const s = openStore(join(mkdtempSync(join(tmpdir(), 'fielog-tm3-')), 'c.db'));
+    const s = openStore(join(mkdtempSync(join(tmpdir(), 'fieldlog-tm3-')), 'c.db'));
     closers.push(() => s.close());
     s.apply(mkEv(1, 't9'));
     s.apply(mkEv(2, 'h9', TOMBSTONE_HIDE, { hides: 't9' } as unknown as Record<string, unknown>));
@@ -56,7 +56,7 @@ describe('tombstone atomic', () => {
   });
 
   it('hide then show round-trips on the same replica', async () => {
-    const store: EventStore = openStore(join(mkdtempSync(join(tmpdir(), 'fielog-tm-rt-')), 'r.db'));
+    const store: EventStore = openStore(join(mkdtempSync(join(tmpdir(), 'fieldlog-tm-rt-')), 'r.db'));
     closers.push(() => store.close());
     store.apply(mkEv(1, 'r1'));
     let seq = 1;

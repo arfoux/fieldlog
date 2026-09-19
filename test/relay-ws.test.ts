@@ -37,7 +37,7 @@ describe('ws relay', () => {
   });
 
   it('two clients share events with heartbeat and live broadcast', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-ws-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-ws-'));
     const server = new WsRelayServer({ port: 0, file: join(dir, 'relay.log'), hbMs: 100 });
     closers.push(() => server.kill());
     const port = await server.start();
@@ -71,7 +71,7 @@ describe('ws relay', () => {
   }, 30_000);
 
   it('kill mid-batch then restart resumes exact-once', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-wskill-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-wskill-'));
     const file = join(dir, 'relay.log');
     const server = new WsRelayServer({ port: 0, file, hbMs: 20 });
     const port = await server.start();
@@ -102,7 +102,7 @@ describe('ws relay', () => {
   }, 30_000);
 
   it('chaos: 50 percent drops still converge exact-once', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-wschaos-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-wschaos-'));
     const server = new WsRelayServer({ port: 0, file: join(dir, 'relay.log'), dropRate: 0.5, seed: 7 });
     closers.push(() => server.kill());
     const port = await server.start();

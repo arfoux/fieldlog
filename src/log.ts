@@ -19,14 +19,14 @@ export const GENESIS_HASH = 'GENESIS';
 /** First line of a swept log: chains the kept suffix to the removed prefix. */
 export interface TruncateMarker {
   v: 1;
-  marker: 'fielog-truncate';
+  marker: 'fieldlog-truncate' | 'fielog-truncate';
   truncated_before: number; // first kept seq; removed seqs are all below this
   tip: string; // hash of the last removed event; verify base for the suffix
   next_seq: number; // seq counter at sweep time; never reuse a seq
 }
 export function isMarker(o: unknown): o is TruncateMarker {
   if (!o || typeof o !== 'object') return false;
-  if (!('marker' in o) || o.marker !== 'fielog-truncate') return false;
+  if (!('marker' in o) || (o.marker !== 'fieldlog-truncate' && o.marker !== 'fielog-truncate')) return false;
   if (!('v' in o) || o.v !== 1) return false;
   return (
     'tip' in o &&

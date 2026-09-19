@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Fielog logo — record card with verification stamp">
-  <title>Fielog — offline-first event log</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Fieldlog logo — record card with verification stamp">
+  <title>Fieldlog — offline-first event log</title>
   <!-- Badge: trustworthy ledger block, reads as solid ink square at 32px -->
   <rect x="8" y="8" width="240" height="240" rx="56" fill="#1E1A16"/>
   <!-- Paper card: cream record / ledger page, zigzag tear at bottom -->

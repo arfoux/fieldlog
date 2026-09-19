@@ -46,7 +46,7 @@ function entryIds(store: EventStore): string[] {
 
 describe('flfix-sync', () => {
   it('push: one un-storable event dead-letters instead of pinning the batch cursor', async () => {
-    const { log, store, close } = pair('fielog-flfix-push-');
+    const { log, store, close } = pair('fieldlog-flfix-push-');
     try {
       const e1 = log.append({ type: 'entry', payload: { value: 1000, actor: 'budi' } });
       const e2 = log.append({ type: 'entry', payload: { value: 2000, actor: 'budi' } });
@@ -76,7 +76,7 @@ describe('flfix-sync', () => {
   });
 
   it('pull: one un-storable event dead-letters and the cursor still advances', async () => {
-    const { log, store, close } = pair('fielog-flfix-pull-');
+    const { log, store, close } = pair('fieldlog-flfix-pull-');
     try {
       const mk = (id: string, seq: number, value: number): LogEvent => ({
         id, seq, type: 'entry', actor: 'budi', device_id: 'devA', ts_device: seq,
@@ -149,7 +149,7 @@ describe('flfix-sync', () => {
   });
 
   it('failover re-push selects the acked prefix by seq bound, not seq arithmetic', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-flfix-gap-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flfix-gap-'));
     const store = openStore(join(dir, 's.db'));
     try {
       store.setMeta('sync.ack_seq', '5');
@@ -195,7 +195,7 @@ describe('flfix-sync', () => {
   });
 
   it('highValue threshold misconfig fails loud instead of dead-lettering entries', async () => {
-    const { log, store, close } = pair('fielog-flfix-hv-');
+    const { log, store, close } = pair('fieldlog-flfix-hv-');
     try {
       const budi = generateDeviceKey('budi-dev');
       const mkRelayEv = (id: string, seq: number, extra?: Partial<LogEvent>): LogEvent => {

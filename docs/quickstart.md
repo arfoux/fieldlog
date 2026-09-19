@@ -7,7 +7,7 @@ Every snippet below runs as-is.
 ## 1 device: write offline, read locally
 
 ```js
-import { createKernel } from 'fielog';
+import { createKernel } from 'fieldlog';
 
 const k = await createKernel({ file: 'ledger.db' });
 await k.append({ type: 'entry', value: 5000, actor: 'device-01' });
@@ -24,7 +24,7 @@ sync/ack decides resolution, never the offline writer.
 Same kernel, other domains — any event shape is stored and synced:
 
 ```js
-import { createKernel } from 'fielog';
+import { createKernel } from 'fieldlog';
 
 const k = await createKernel({ file: 'app.db' });
 await k.append({ type: 'kill', killer: 'player-1', victim: 'boss-3' });
@@ -38,7 +38,7 @@ k.close();
 ## 2 devices: sync later via a local relay (dev, unsigned)
 
 ```js
-import { createKernel, WsRelayServer, WsRelayClient } from 'fielog';
+import { createKernel, WsRelayServer, WsRelayClient } from 'fieldlog';
 
 const server = new WsRelayServer({ port: 8091, file: 'relay.log' });
 await server.start();
@@ -62,7 +62,7 @@ server.kill();
 > kill the relay at exit — nothing survives for a later signed `sync` to
 > continue from, and unsigned rows carry no signatures so a signed-mode
 > pull dead-letters them. There is no unsigned→signed upgrade step.
-> The signed CLI demo (`bun bin/fielog.ts demo`, `bin/fielog.ts:cmdDemo`)
+> The signed CLI demo (`bun bin/fieldlog.ts demo`, `bin/fieldlog.ts:cmdDemo`)
 > is the separate signed equivalent (ephemeral port, minted keys + cap
 > tokens). Port note: the snippets below use fixed `8091`; a second
 > relay on one box collides — pass `port: 0` and read back `.port`
@@ -74,22 +74,22 @@ The full 20-event unsigned example is in `demo/two-node.ts`
 ## 2 devices: signed mode (production)
 
 Open relays are for local dev only. Production: serve registers each device's
-pubkey, sync carries a capability token (`bin/fielog.ts`):
+pubkey, sync carries a capability token (`bin/fieldlog.ts`):
 
 ```sh
 # one time only: mint the device key (standard PEM: PRIV PKCS#8, PUB SPKI)
 openssl genpkey -algorithm ed25519 -out device-01.priv
 openssl pkey -in device-01.priv -pubout -out device-01.pub
 # terminal 1 — serve keeps running until Ctrl-C:
-bun bin/fielog.ts serve --port 8091 --file ./relay.log --trust device-01=./device-01.pub
+bun bin/fieldlog.ts serve --port 8091 --file ./relay.log --trust device-01=./device-01.pub
 # terminal 2:
-bun bin/fielog.ts sync --file ./ledger.db --relay ws://127.0.0.1:8091 --key ./device-01.priv --as device-01
+bun bin/fieldlog.ts sync --file ./ledger.db --relay ws://127.0.0.1:8091 --key ./device-01.priv --as device-01
 ```
 
 Or in code (`src/kernel.ts:capToken`, `src/relay.ts:WsRelayClientOpts`):
 
 ```js
-import { createKernel, generateDeviceKey, WsRelayServer, WsRelayClient } from 'fielog';
+import { createKernel, generateDeviceKey, WsRelayServer, WsRelayClient } from 'fieldlog';
 
 const k1 = generateDeviceKey('device-01');
 const server = new WsRelayServer({ port: 8091, file: 'relay.log',

@@ -18,7 +18,7 @@ async function waitFor(cond: () => boolean, ms = 15000): Promise<void> {
 
 describe('kill9 recovery', () => {
   it('survives SIGKILL mid-append with zero corruption', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-kill9-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-kill9-'));
     const child = fileURLToPath(new URL('./helpers/kill-child.ts', import.meta.url));
     const proc = Bun.spawn(['bun', child, dir, '5000'], {
       stdout: 'ignore',

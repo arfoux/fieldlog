@@ -13,7 +13,7 @@ import {
 } from '../src/cas.ts';
 
 function freshDir(tag: string): string {
-  return mkdtempSync(join(tmpdir(), `fielog-cas-${tag}-`));
+  return mkdtempSync(join(tmpdir(), `fieldlog-cas-${tag}-`));
 }
 
 describe('cas-store', () => {

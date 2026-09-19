@@ -1,15 +1,15 @@
 #!/usr/bin/env node
-// bin/fielog.js — npm bin shim (valid .js entry). Exec bun on sibling TS entry; clear fallback when bun missing.
+// bin/fieldlog.js — npm bin shim (valid .js entry). Exec bun on sibling TS entry; clear fallback when bun missing.
 import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const dir = dirname(fileURLToPath(import.meta.url));
-const entry = join(dir, 'fielog.ts');
+const entry = join(dir, 'fieldlog.ts');
 const r = spawnSync('bun', [entry, ...process.argv.slice(2)], { stdio: 'inherit' });
 if (r.error) {
   if (r.error.code === 'ENOENT') {
-    console.error('fielog needs the Bun runtime (https://bun.sh). Install Bun, then retry: bun bin/fielog.ts --help');
+    console.error('fieldlog needs the Bun runtime (https://bun.sh). Install Bun, then retry: bun bin/fieldlog.ts --help');
     process.exit(1);
   }
   console.error(r.error.message);

@@ -11,7 +11,7 @@ import { generateDeviceKey } from '../src/auth.ts';
 
 import { pathToFileURL } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const CLI = join(root, 'bin', 'fielog.ts');
+const CLI = join(root, 'bin', 'fieldlog.ts');
 const BUN = process.execPath;
 
 const procs: Array<ReturnType<typeof Bun.spawn>> = [];
@@ -57,21 +57,21 @@ async function runOnce(args: string[]): Promise<{ code: number; out: string; err
 
 describe('cli signed surface', () => {
   it('serve demands --trust without --unsigned', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-cliauth-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-cliauth-'));
     const r = await runOnce(['serve', '--port', '0', '--file', join(dir, 'relay.log')]);
     assert.notEqual(r.code, 0);
     assert.match(r.err, /--trust|--unsigned/);
   }, 30_000);
 
   it('sync demands --key/--as without --unsigned', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-cliauth-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-cliauth-'));
     const r = await runOnce(['sync', '--file', join(dir, 'a.db'), '--relay', 'ws://127.0.0.1:1']);
     assert.notEqual(r.code, 0);
     assert.match(r.err, /--key|--unsigned/);
   }, 30_000);
 
   it('forged device_id push rejected, valid device syncs', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-cliauth-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-cliauth-'));
     const victim = generateDeviceKey('device');
     const attacker = generateDeviceKey('attacker');
     const victimPub = join(dir, 'device.pub');

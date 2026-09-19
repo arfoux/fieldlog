@@ -71,7 +71,7 @@ async function checkInvariants(k: Kernel, model: Model, relay: MemoryRelay, floo
 }
 
 async function runSoak(seed: number): Promise<{ ops: number; checks: number }> {
-  const dir = mkdtempSync(join(tmpdir(), 'fielog-soak-runner-'));
+  const dir = mkdtempSync(join(tmpdir(), 'fieldlog-soak-runner-'));
   const dbPath = join(dir, 'ledger.db');
   const relay = new MemoryRelay();
   let k: Kernel = await createKernel({ file: dbPath });
@@ -131,7 +131,7 @@ describe('soak-runner', () => {
   }
 
   it('seal collision: colliding snapshots sweep only the sealed prefix', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-soak-killer-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-soak-killer-'));
     const dbPath = join(dir, 'ledger.db');
     const relay = new MemoryRelay();
     let k = await createKernel({ file: dbPath });

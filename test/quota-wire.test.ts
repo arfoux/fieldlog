@@ -11,7 +11,7 @@ afterEach(() => { while (closers.length) closers.pop()!(); });
 
 describe('quota-wire: append past the byte ceiling is refused', () => {
   it('append exceeding quota throws ERR_QUOTA_EXCEEDED and writes nothing', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-quota-wire-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-quota-wire-'));
     const k = await createKernel({ file: join(dir, 'ledger.db'), quotaLimitBytes: 1, quotaEstimateBytes: 1 });
     closers.push(() => k.close());
     // db+log already exist (>1 byte), so even a 1-byte reservation denies.
@@ -20,7 +20,7 @@ describe('quota-wire: append past the byte ceiling is refused', () => {
   });
 
   it('append within quota succeeds and quota() reports headroom', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-quota-wire-ok-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-quota-wire-ok-'));
     const k = await createKernel({ file: join(dir, 'ledger.db'), quotaLimitBytes: 100_000_000 });
     closers.push(() => k.close());
     const ev = await k.append({ type: 'entry', value: 1, actor: 'budi' });
@@ -30,7 +30,7 @@ describe('quota-wire: append past the byte ceiling is refused', () => {
   });
 
   it('no quota configured: quota() is null and append is unbounded', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-quota-wire-off-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-quota-wire-off-'));
     const k = await createKernel({ file: join(dir, 'ledger.db') });
     closers.push(() => k.close());
     assert.equal(k.quota(), null);

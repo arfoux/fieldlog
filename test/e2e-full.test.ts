@@ -1,4 +1,4 @@
-// e2e-full.test.ts — the entire fielog user journey in one tmp dir:
+// e2e-full.test.ts — the entire fieldlog user journey in one tmp dir:
 // init kernel, 1000 mixed multi-actor events, sync across 2 file-backed
 // relays, SIGKILL mid-append, reopen + recover, undo flows, kill-primary
 // failover to secondary, capability revoke mid-stream, cli demo totals.
@@ -33,9 +33,9 @@ function logLines(path: string): string[] {
   }
 }
 
-describe('fielog full journey', () => {
+describe('fieldlog full journey', () => {
   it('init, 1000 events, crash, undo, failover, revoke, cli demo', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-e2e-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-e2e-'));
     const dbFile = join(dir, 'ledger.db');
     const logFile = join(dir, 'ledger.log');
     const keyA = generateDeviceKey('device-a');
@@ -199,7 +199,7 @@ describe('fielog full journey', () => {
       void probe;
 
       // Phase 7: CLI demo totals match on its own two-device run.
-      const bin = fileURLToPath(new URL('../bin/fielog.ts', import.meta.url));
+      const bin = fileURLToPath(new URL('../bin/fieldlog.ts', import.meta.url));
       const demo = Bun.spawn(['bun', bin, 'demo'], { stdout: 'pipe', stderr: 'pipe' });
       const [out, err, code] = await Promise.all([
         new Response(demo.stdout).text(),

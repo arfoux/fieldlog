@@ -228,7 +228,7 @@ export function sweepLogFile(
   const marker =
     JSON.stringify({
       v: 1,
-      marker: 'fielog-truncate',
+      marker: 'fieldlog-truncate',
       truncated_before: sealedSeq + 1,
       tip,
       next_seq: sealedSeq + 1,

@@ -1,4 +1,4 @@
-// deltasync.ts — manifest-first delta sync between two fielog replicas.
+// deltasync.ts — manifest-first delta sync between two fieldlog replicas.
 //
 // Protocol (boring, in order):
 //   1. manifest: receiver pulls sender manifest { count, tip, ids[] } first.

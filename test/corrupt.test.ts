@@ -10,7 +10,7 @@ import { MemoryRelay } from '../src/sync.ts';
 
 describe('corrupt line quarantine', () => {
   it('skips, quarantines, syncs, and stays stable on reopen', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-corrupt-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-corrupt-'));
     const file = join(dir, 'ledger.db');
     const k1 = await createKernel({ file });
     let expected10 = 0;

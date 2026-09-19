@@ -334,7 +334,7 @@ export class WsRelayServer {
       port: this.opts.port ?? 0,
       fetch(req, server) {
         if (server.upgrade(req, { data: { lastPong: Date.now() } })) return;
-        return new Response('fielog relay', { status: 200 });
+        return new Response('fieldlog relay', { status: 200 });
       },
       websocket: {
         open(ws) {

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# soak-runner.sh -- seeded soak driver for fielog spins.
+# soak-runner.sh -- seeded soak driver for fieldlog spins.
 #
 # Runs test/soak-runner.test.ts (random append/seal/sync/restart with an
 # invariant check every N steps) under a chosen seed and prints the proof

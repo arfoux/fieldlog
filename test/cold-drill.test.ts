@@ -1,5 +1,5 @@
 // Cold-drill (adapted): delete everything except the primary log, then rise
-// from the log alone. fielog has no cold tier (wave-1 fact), so the drill
+// from the log alone. fieldlog has no cold tier (wave-1 fact), so the drill
 // keeps only ledger.log, removes the sqlite read-model + snapshots, and
 // proves replay + verify rebuild identical state. Real files, no mocks.
 import { describe, it } from 'bun:test';
@@ -14,7 +14,7 @@ const value = (i: number): number => 1000 + i;
 
 describe('cold-drill from primary log only', () => {
   it('rebuilds identical state after deleting everything but ledger.log', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-cold-drill-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-cold-drill-'));
     const file = join(dir, 'ledger.db');
     const logPath = join(dir, 'ledger.log');
 

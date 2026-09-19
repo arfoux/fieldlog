@@ -33,7 +33,7 @@ function entry(id: string, seq: number, device: string, value: number): LogEvent
 
 describe('revoke quarantine', () => {
   it('tainted pull quarantines instead of converging blindly', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-q-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-q-'));
     const relay = new MemoryRelay();
     await relay.push([entry('good-1', 1, 'devA', 1000), entry('bad-1', 2, 'devB', 9000)]);
     const k = await createKernel({ file: join(dir, 'ledger.db') });
@@ -65,7 +65,7 @@ describe('revoke quarantine', () => {
   }, 30_000);
 
   it('redelivered revoked events purge from views on the hasId path', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-q-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-q-'));
     const log = openLog(join(dir, 'ledger.log'), 'devA');
     const store = openStore(join(dir, 'ledger.db'));
     try {
@@ -92,7 +92,7 @@ describe('revoke quarantine', () => {
   }, 30_000);
 
   it('revoked-while-parked events quarantine instead of re-driving', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-q-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-q-'));
     const log = openLog(join(dir, 'ledger.log'), 'devA');
     const store = openStore(join(dir, 'ledger.db'));
     try {
@@ -117,7 +117,7 @@ describe('revoke quarantine', () => {
   }, 30_000);
 
   it('purgeRevoked sweeps pre-revoke data, keeps the log, idempotent re-sweep', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-q-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-q-'));
     const relay = new MemoryRelay();
     await relay.push([entry('good-4', 1, 'devA', 1000), entry('bad-4', 2, 'devB', 8000)]);
     const k = await createKernel({ file: join(dir, 'ledger.db') });
@@ -156,7 +156,7 @@ describe('revoke quarantine', () => {
   }, 30_000);
 
   it('authenticated RevokeLog merge drives predicate quarantine, sibling lives', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-q-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-q-'));
     const admin = generateDeviceKey('admin-1');
     const admins = { 'admin-1': admin.publicKeyPem };
     const ra = new RevokeLog(admins);
@@ -185,7 +185,7 @@ describe('revoke quarantine', () => {
   }, 30_000);
 
   it('kernel sync auto-sweeps pre-revoke leftovers without an extra call', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-q-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-q-'));
     const relay = new MemoryRelay();
     await relay.push([entry('good-6', 1, 'devA', 1000), entry('bad-6', 2, 'devB', 4000)]);
     const k = await createKernel({ file: join(dir, 'ledger.db') });

@@ -10,7 +10,7 @@ import { parseN, summarize } from './util.ts';
 const N = parseN(process.argv, 100_000);
 const ITERS = 200;
 const WARMUP = 10;
-const dir = mkdtempSync(join(tmpdir(), 'fielog-bench-query-'));
+const dir = mkdtempSync(join(tmpdir(), 'fieldlog-bench-query-'));
 const kernel = await createKernel({ file: join(dir, 'bench.db'), maxPending: N + 1000 });
 
 const t0 = performance.now();

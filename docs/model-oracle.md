@@ -1,7 +1,7 @@
 # model-oracle
 
 Model calculator (~35 lines) + state-vs-implementation comparison every 100
-steps. Port of skill-6 SOLID to fielog: a plain-arithmetic oracle mirroring
+steps. Port of skill-6 SOLID to fieldlog: a plain-arithmetic oracle mirroring
 `route()` routing in `src/store.ts` (only `entry` / `tally.add` / `tally.remove` /
 `undo.compensate` cases), comparison results reported loudly with seed + step
 + op log.

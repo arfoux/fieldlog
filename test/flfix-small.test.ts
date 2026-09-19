@@ -33,7 +33,7 @@ function mkEv(seq: number, id: string, type: string, payload: Record<string, unk
 }
 
 function memStore(): { store: EventStore; done: () => void } {
-  const dir = mkdtempSync(join(tmpdir(), 'fielog-flfix-small-'));
+  const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flfix-small-'));
   const store = openStore(join(dir, 't.db'));
   return { store, done: () => store.close() };
 }
@@ -90,7 +90,7 @@ describe('flfix-small audit suspects', () => {
   });
 
   it('hide fails fast on unknown targets and duplicate hides stay safe', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-flfix-hide-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flfix-hide-'));
     const k = await createKernel({ file: join(dir, 'ledger.db') });
     closers.push(() => k.close());
     const a = await k.append({ type: 'note', payload: { content: 'note-1' } });
@@ -113,7 +113,7 @@ describe('flfix-small audit suspects', () => {
   });
 
   it('quota remaining never goes negative; denial stays loud', () => {
-    const d = mkdtempSync(join(tmpdir(), 'fielog-flfix-quota-'));
+    const d = mkdtempSync(join(tmpdir(), 'fieldlog-flfix-quota-'));
     const f = join(d, 'ledger.log');
     writeFileSync(f, 'x'.repeat(10));
     const g = openQuotaGuard({ limitBytes: 100, files: [f] });
@@ -127,7 +127,7 @@ describe('flfix-small audit suspects', () => {
   });
 
   it('quota files list is a snapshot; over-release absorbs at zero', () => {
-    const d = mkdtempSync(join(tmpdir(), 'fielog-flfix-qfiles-'));
+    const d = mkdtempSync(join(tmpdir(), 'fieldlog-flfix-qfiles-'));
     const small = join(d, 'a.log');
     const big = join(d, 'b.log');
     writeFileSync(small, 'x'.repeat(8));
@@ -144,7 +144,7 @@ describe('flfix-small audit suspects', () => {
   });
 
   it('openHashChain forwards the signer to the log', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-flfix-hash-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flfix-hash-'));
     const c = openHashChain(join(dir, 'rantang.log'), 'dev-1', (ev) => `sig-${ev.hash}`);
     try {
       const e = c.append({ type: 'note', payload: { n: 1 } });

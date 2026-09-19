@@ -23,7 +23,7 @@ function seedEvents(store: EventStore, seqs: number[]): void {
 }
 
 function freshDb(name: string): { dbPath: string; store: EventStore } {
-  const dir = mkdtempSync(join(tmpdir(), `fielog-flfix-retain-${name}-`));
+  const dir = mkdtempSync(join(tmpdir(), `fieldlog-flfix-retain-${name}-`));
   const dbPath = join(dir, 'ledger.db');
   return { dbPath, store: openStore(dbPath) };
 }
@@ -49,7 +49,7 @@ describe('flfix-retain', () => {
   });
 
   it('sweep fsyncs the containing directory after the rename', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-flfix-sweep-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flfix-sweep-'));
     const logPath = join(dir, 'ledger.log');
     const ev = (seq: number): string => JSON.stringify({ seq, id: `id-${seq}`, hash: `h${seq}` });
     writeFileSync(logPath, [ev(1), ev(2), ev(3)].join('\n') + '\n');
@@ -68,7 +68,7 @@ describe('flfix-retain', () => {
   });
 
   it('sweep still dir-fsyncs with the default hook (no injection)', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-flfix-sweep-default-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flfix-sweep-default-'));
     const logPath = join(dir, 'ledger.log');
     const ev = (seq: number): string => JSON.stringify({ seq, id: `id-${seq}`, hash: `h${seq}` });
     writeFileSync(logPath, [ev(1), ev(2)].join('\n') + '\n');

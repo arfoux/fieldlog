@@ -1,4 +1,4 @@
-// bench/util.ts — shared helpers for fielog benchmarks (bun only).
+// bench/util.ts — shared helpers for fieldlog benchmarks (bun only).
 export function parseN(argv: string[], def: number): number {
   const raw = argv[2] ?? String(def);
   const n = Number.parseInt(raw, 10);

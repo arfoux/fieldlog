@@ -20,7 +20,7 @@ function run(args: string[]): { code: number; out: string } {
 }
 
 function fixture(name: string, body: string): string {
-  const dir = mkdtempSync(join(tmpdir(), 'fielog-flakehunter-'));
+  const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flakehunter-'));
   const f = join(dir, name);
   writeFileSync(f, body);
   return f;
@@ -69,7 +69,7 @@ describe('flake-hunter --from-log classifier', () => {
   });
 
   it('missing log file is a usage error (exit 1)', () => {
-    const r = run(['--from-log', join(tmpdir(), 'fielog-flakehunter-nope.log')]);
+    const r = run(['--from-log', join(tmpdir(), 'fieldlog-flakehunter-nope.log')]);
     assert.equal(r.code, 1);
   });
 

@@ -1,6 +1,6 @@
 # corruption-generator
 
-Port of skill-9 (`corruption-generator`, status HEALTHY) to fielog: a
+Port of skill-9 (`corruption-generator`, status HEALTHY) to fieldlog: a
 deterministic lib injecting one fault per run into the JSONL log, plus
 detector tests proving each fault is caught on reopen.
 

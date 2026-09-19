@@ -12,7 +12,7 @@ const SKEW = 30 * 60 * 1000;
 
 describe('clock skew', () => {
   it('orders by seq while wall clocks disagree by 30 minutes', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-skew-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-skew-'));
     const now = Date.now();
     const ka = await createKernel({ file: join(dir, 'a.db'), clock: () => now + SKEW });
     const kb = await createKernel({ file: join(dir, 'b.db') });

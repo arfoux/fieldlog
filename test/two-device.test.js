@@ -15,7 +15,7 @@ describe('two-device pull', () => {
   let b;
   let relay;
   beforeEach(async () => {
-    dir = mkdtempSync(join(tmpdir(), 'fielog-pull-'));
+    dir = mkdtempSync(join(tmpdir(), 'fieldlog-pull-'));
     a = await createKernel({ file: join(dir, 'a.db') });
     b = await createKernel({ file: join(dir, 'b.db') });
     relay = new MemoryRelay();

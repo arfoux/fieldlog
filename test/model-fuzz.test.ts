@@ -79,7 +79,7 @@ async function check(seed: number, step: number, op: string, k: Kernel, o: Oracl
 }
 
 async function runFuzz(seed: number): Promise<void> {
-  const dir = mkdtempSync(join(tmpdir(), 'fielog-modelfuzz-'));
+  const dir = mkdtempSync(join(tmpdir(), 'fieldlog-modelfuzz-'));
   const dbPath = join(dir, 'ledger.db');
   const relay = new MemoryRelay();
   let k: Kernel = await createKernel({ file: dbPath });

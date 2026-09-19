@@ -25,7 +25,7 @@ describe('compat v05 log', () => {
   let dir: string;
   let k: Kernel;
   beforeAll(async () => {
-    dir = mkdtempSync(join(tmpdir(), 'fielog-v05-'));
+    dir = mkdtempSync(join(tmpdir(), 'fieldlog-v05-'));
     copyFileSync(FIXTURE, join(dir, 'ledger.log'));
     k = await createKernel({ file: join(dir, 'ledger.db') });
   });

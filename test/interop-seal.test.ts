@@ -1,8 +1,8 @@
-// Interop e2e (fielog -> moltarc): kernel append batch -> snapshot ->
+// Interop e2e (fieldlog -> moltarc): kernel append batch -> snapshot ->
 // seal snapshot via moltarc API -> verify -> query asof -> truncate log.
 // Uses API imports only (no CLI, no src edits).
 // Requires the moltarc checkout as a sibling (../../molt); skips in CI
-// where fielog stands alone.
+// where fieldlog stands alone.
 import { describe, it, afterEach } from 'bun:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, existsSync } from 'node:fs';
@@ -31,7 +31,7 @@ describe('interop-seal e2e', () => {
     const { seal } = await import('../../molt/src/seal.ts');
     const { verifyAll } = await import('../../molt/src/verify.ts');
     const { queryAsOf } = await import('../../molt/src/timetravel.ts');
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-interop-seal-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-interop-seal-'));
     const file = join(dir, 'ledger.db');
     const k = await createKernel({ file });
     closers.push(() => k.close());

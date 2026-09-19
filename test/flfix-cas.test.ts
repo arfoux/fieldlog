@@ -17,7 +17,7 @@ import {
 } from '../src/cas.ts';
 
 function freshDir(tag: string): string {
-  return mkdtempSync(join(tmpdir(), `fielog-flfix-cas-${tag}-`));
+  return mkdtempSync(join(tmpdir(), `fieldlog-flfix-cas-${tag}-`));
 }
 
 // Tight create/delete churn over one blob path, run in a child process so the

@@ -1,6 +1,6 @@
 # quota-guard
 
-Port of skill-15 (`quota-guard`) to fielog. Admission control over
+Port of skill-15 (`quota-guard`) to fieldlog. Admission control over
 on-disk usage: callers `reserve(n)` before growing state (append,
 snapshot, sync spool) and `release(n)` when the growth is dropped.
 Every decision re-measures the tracked files, so growth behind the

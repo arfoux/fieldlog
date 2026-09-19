@@ -1,6 +1,6 @@
 # Conformance gate (pre-merge)
 
-`scripts/conformance-gate.sh` is the pre-merge gate for fielog spins.
+`scripts/conformance-gate.sh` is the pre-merge gate for fieldlog spins.
 It runs four checks; every check prints `PASS: <name> (<detail>)` or
 `FAIL: <name> (<reason>)`, then a final `GATE: PASS` / `GATE: FAIL` line.
 Exit code is 0 only when all four checks pass.

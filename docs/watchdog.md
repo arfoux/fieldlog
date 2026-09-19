@@ -1,6 +1,6 @@
 # watchdog supervisor
 
-Port of skill-24 (`watchdog-supervisor`, status SOLID) to fielog.
+Port of skill-24 (`watchdog-supervisor`, status SOLID) to fieldlog.
 One script polls one orchestration wave and wakes the coordinator on
 three conditions: `worker_done`, `escalation`, or `timeout`.
 
@@ -65,7 +65,7 @@ Run created 2026-09-05T22:40:40Z, three read-only recon workers:
 | --- | --- | --- |
 | `[moltarc-audit-pattern]` task_f2ab2d2f4b27 | term_... | 2026-09-05 22:46:12 |
 | `[spin-spec-decompose]` task_6594cf77f3f7 | term_... | 2026-09-05 22:46:19 |
-| `[fielog-baseline-map]` task_c933171ea8b6 | term_... | 2026-09-05 22:48:54 |
+| `[fieldlog-baseline-map]` task_c933171ea8b6 | term_... | 2026-09-05 22:48:54 |
 
 A supervisor with `--interval 60 --timeout 900` would log two quiet
 rounds, then on the third poll see 3/3 done and wake the coordinator:

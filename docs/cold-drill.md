@@ -1,8 +1,8 @@
-# cold-drill (fielog adaptation)
+# cold-drill (fieldlog adaptation)
 
-Port of skill-8 (`cold-drill`, status SOLID) to fielog WITH ADAPTATIONS.
+Port of skill-8 (`cold-drill`, status SOLID) to fieldlog WITH ADAPTATIONS.
 The original: delete everything except the cold tier, prove the node revives
-from the cold tier alone. fielog has no cold tier (wave-1 fact) — the only
+from the cold tier alone. fieldlog has no cold tier (wave-1 fact) — the only
 source of truth is the primary log (`ledger.log`, hash-chained JSONL).
 This drill deletes everything EXCEPT the primary log and proves the node
 revives from the log alone via replay + verify.
@@ -34,7 +34,7 @@ value `1000+i` (`i = 0..n-1`), so the expected total
 3. Quarantine forensics are deleted too: the history of once-quarantined
    corrupt lines does not survive — the remaining log is still re-verified,
    and named gaps (`gaps`) appear when lines are missing.
-4. A once-swept log stays safe: the `fielog-truncate` marker is the first
+4. A once-swept log stays safe: the `fieldlog-truncate` marker is the first
    line of `ledger.log` itself, so it is kept.
 
 ## Usage

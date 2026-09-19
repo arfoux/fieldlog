@@ -25,7 +25,7 @@ describe('stress 10 clients', () => {
   });
 
   it('200 concurrent events land exact-once', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-stress-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-stress-'));
     const server = new WsRelayServer({ port: 0, file: join(dir, 'relay.log') });
     closers.push(() => server.kill());
     const port = await server.start();

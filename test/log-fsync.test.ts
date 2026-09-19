@@ -9,7 +9,7 @@ import { openLog } from '../src/log.ts';
 
 describe('torn-tail fsync repair', () => {
   it('truncates torn tail, keeps prior events, stays stable', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-logfsync-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-logfsync-'));
     const path = join(dir, 'ledger.log');
     const l1 = openLog(path, 'dev');
     l1.append({ type: 'entry', value: 1 });

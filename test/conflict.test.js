@@ -10,7 +10,7 @@ describe('conflict surfacing', () => {
   let dir;
   let k;
   beforeEach(async () => {
-    dir = mkdtempSync(join(tmpdir(), 'fielog-conflict-'));
+    dir = mkdtempSync(join(tmpdir(), 'fieldlog-conflict-'));
     k = await createKernel({ file: join(dir, 'ledger.db') });
   });
   afterEach(() => k?.close());

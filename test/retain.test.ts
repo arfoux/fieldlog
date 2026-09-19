@@ -24,7 +24,7 @@ describe('retention', () => {
   });
 
   it('snapshot, truncate, and keep serving + syncing', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-retain-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-retain-'));
     const file = join(dir, 'ledger.db');
     const k = await createKernel({ file });
     closers.push(() => k.close());

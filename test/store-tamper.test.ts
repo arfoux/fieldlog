@@ -19,7 +19,7 @@ afterEach(() => {
 });
 
 function mem(): EventStore {
-  const dir = mkdtempSync(join(tmpdir(), 'fielog-tamper-'));
+  const dir = mkdtempSync(join(tmpdir(), 'fieldlog-tamper-'));
   const s = openStore(join(dir, 't.db'));
   closers.push(() => s.close());
   return s;

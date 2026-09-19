@@ -1,7 +1,7 @@
 #!/bin/sh
-# cold-drill.sh - adapted cold-start drill for fielog (port of skill-8 SOLID).
+# cold-drill.sh - adapted cold-start drill for fieldlog (port of skill-8 SOLID).
 #
-# fielog has no cold tier (wave-1 fact), so the drill keeps ONLY the primary
+# fieldlog has no cold tier (wave-1 fact), so the drill keeps ONLY the primary
 # log (ledger.log), deletes everything else (sqlite read-model, snapshots,
 # quarantine), and proves the node rises from the log alone via replay +
 # verify with identical totals.
@@ -39,11 +39,11 @@ case "$N" in ''|*[!0-9]*|0) echo "[cold-drill] --n needs a positive integer" >&2
 
 TMPD="${TMPDIR:-${TEMP:-${TMP:-/tmp}}}"
 [ -d "$TMPD" ] || { echo "[cold-drill] state dir missing: $TMPD" >&2; exit 1; }
-[ -n "$DIR" ] || DIR="$(mktemp -d "$TMPD/fielog-cold-drill-XXXXXX")"
+[ -n "$DIR" ] || DIR="$(mktemp -d "$TMPD/fieldlog-cold-drill-XXXXXX")"
 
 log() { printf '[cold-drill %s] %s\n' "$(date -u '+%H:%M:%S')" "$*"; }
 
-SEED="$(mktemp "$TMPD/fielog-cold-seed-XXXXXX.ts")"
+SEED="$(mktemp "$TMPD/fieldlog-cold-seed-XXXXXX.ts")"
 cat > "$SEED" <<'EOF'
 const dir = process.env.DRILL_DIR!;
 const n = Number(process.env.DRILL_N!);
@@ -58,7 +58,7 @@ const events = k.health().events;
 k.close();
 if (events !== n || rows[0].total !== expected || !v.ok) process.exit(3);
 EOF
-RISE="$(mktemp "$TMPD/fielog-cold-rise-XXXXXX.ts")"
+RISE="$(mktemp "$TMPD/fieldlog-cold-rise-XXXXXX.ts")"
 cat > "$RISE" <<'EOF'
 const dir = process.env.DRILL_DIR!;
 const n = Number(process.env.DRILL_N!);

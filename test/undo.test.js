@@ -10,7 +10,7 @@ describe('undo compensating event', () => {
   let dir;
   let k;
   beforeEach(async () => {
-    dir = mkdtempSync(join(tmpdir(), 'fielog-undo-'));
+    dir = mkdtempSync(join(tmpdir(), 'fieldlog-undo-'));
     k = await createKernel({ file: join(dir, 'ledger.db') });
   });
   afterEach(() => k?.close());

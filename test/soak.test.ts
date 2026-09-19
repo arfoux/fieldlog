@@ -81,7 +81,7 @@ async function checkInvariants(k: Kernel, model: Model, relay: MemoryRelay, floo
 }
 
 async function runSoak(seed: number): Promise<void> {
-  const dir = mkdtempSync(join(tmpdir(), 'fielog-soak-'));
+  const dir = mkdtempSync(join(tmpdir(), 'fieldlog-soak-'));
   const dbPath = join(dir, 'ledger.db');
   const relay = new MemoryRelay();
   let k: Kernel = await createKernel({ file: dbPath });

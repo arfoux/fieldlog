@@ -1,13 +1,13 @@
 #!/usr/bin/env bun
-// bin/fielog.ts — small CLI: serve the ws relay, sync a kernel file, run the two-node demo.
+// bin/fieldlog.ts — small CLI: serve the ws relay, sync a kernel file, run the two-node demo.
 // Bun only. Signed mode by default: serve needs --trust id=pub.pem (repeatable)
 // and sync needs --key priv.pem --as <device>; --unsigned selects the legacy
 // open relay (accepts any device_id, local dev only).
 // examples:
-//   bun bin/fielog.ts serve --port 8091 --file ./relay.log --trust device-01=./device-01.pub
-//   bun bin/fielog.ts sync --file ./ledger.db --relay ws://127.0.0.1:8091 --key ./device-01.priv --as device-01
-//   bun bin/fielog.ts serve --port 8091 --file ./relay.log --unsigned
-//   bun bin/fielog.ts demo
+//   bun bin/fieldlog.ts serve --port 8091 --file ./relay.log --trust device-01=./device-01.pub
+//   bun bin/fieldlog.ts sync --file ./ledger.db --relay ws://127.0.0.1:8091 --key ./device-01.priv --as device-01
+//   bun bin/fieldlog.ts serve --port 8091 --file ./relay.log --unsigned
+//   bun bin/fieldlog.ts demo
 import { mkdtempSync, readFileSync, writeSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -15,7 +15,7 @@ import { createKernel, generateDeviceKey, WsRelayClient, WsRelayServer } from '.
 
 function usage(): string {
   return [
-    'usage: fielog <serve|sync|demo> [options]',
+    'usage: fieldlog <serve|sync|demo> [options]',
     '  serve --port <n> --file <relay.log> --trust <id=pub.pem> [--trust ...]',
     '    run the file-backed ws relay in signed mode (rejects unknown devices)',
     '  serve --port <n> --file <relay.log> --unsigned   open relay (dev only)',
@@ -66,7 +66,7 @@ async function cmdServe(rest: string[]): Promise<void> {
   }
   const server = new WsRelayServer({ port, file, trustedDevices, allowUnsigned: unsigned });
   const actual = await server.start();
-  console.log(`fielog relay listening ws://127.0.0.1:${actual} file=${file}`);
+  console.log(`fieldlog relay listening ws://127.0.0.1:${actual} file=${file}`);
   console.log(`ready port=${actual}`);
   const stop = () => {
     server.kill();
@@ -100,7 +100,7 @@ async function cmdSync(rest: string[]): Promise<void> {
 }
 
 async function cmdDemo(): Promise<void> {
-  const dir = mkdtempSync(join(tmpdir(), 'fielog-demo-'));
+  const dir = mkdtempSync(join(tmpdir(), 'fieldlog-demo-'));
   const k1 = generateDeviceKey('device-01');
   const k2 = generateDeviceKey('device-02');
   const server = new WsRelayServer({ port: 0, file: join(dir, 'relay.log'), trustedDevices: { 'device-01': k1.publicKeyPem, 'device-02': k2.publicKeyPem } });

@@ -1,6 +1,6 @@
 # flake-hunter
 
-Port of skill-1 (`flake-hunter`, status SOLID) to fielog.
+Port of skill-1 (`flake-hunter`, status SOLID) to fieldlog.
 Loop the flaky target N times, keep every per-run log, label each
 failure `env` (timing/socket/resource) or `product`
 (assertion/invariant), and print a pass-rate summary.
@@ -58,7 +58,7 @@ means `product unknown-failure-no-pattern`.
 | `test/failover.test.ts` (memory cases :27-117; real sockets :119-150, `crashAfter = 1` :136, 30 s budget :150) | `EADDRINUSE`, ws `1006`, handshake/connect timeout on real sockets (:121-133) | `acked != 20`, relay duplicates, union `!= 20`, secondary short (:138-149) |
 | `test/soak.test.ts` (`runSoak` :83-144, invariants :50-81, 55 s budget :148, unseeded run :150-154) | `55 s` timeout on a slow box; the unseeded case picks a fresh seed per run so only it can wander | `sql total diverges` (:61-63), `relay holds duplicates` (:80), `ack regressed` (:71, :118), `unconverged tail` (:139-140) |
 
-The skill pattern applied without invention: fielog's flaky
+The skill pattern applied without invention: fieldlog's flaky
 surface is exactly timing (kill9 `waitFor`), sockets (failover
 ws, relay-ws), and long budgets (soak/model-fuzz) — the same
 three shapes the loop+classify pattern covers. Minimal

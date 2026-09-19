@@ -25,7 +25,7 @@ afterEach(() => {
 
 describe('ack implies durable store; truncate never drops unacked/unapplied', () => {
   it('ack-then-crash chain: logged-but-unapplied event survives sync+truncate+reopen', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-ackstore-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-ackstore-'));
     const dbPath = join(dir, 'ledger.db');
     const logPath = join(dir, 'ledger.log');
     const log = openLog(logPath, 'devA');
@@ -64,7 +64,7 @@ describe('ack implies durable store; truncate never drops unacked/unapplied', ()
   });
 
   it('push dead-letters events missing from the store: cursor advances, evidence quarantined', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-ackstore-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-ackstore-'));
     const dbPath = join(dir, 'ledger.db');
     const logPath = join(dir, 'ledger.log');
     const log = openLog(logPath, 'devA');
@@ -94,7 +94,7 @@ describe('ack implies durable store; truncate never drops unacked/unapplied', ()
   });
 
   it('truncate-then-sync: unacked suffix survives truncate and still syncs', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-ackstore-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-ackstore-'));
     const k = await createKernel({ file: join(dir, 'ledger.db') });
     closers.push(() => k.close());
     const relay = new MemoryRelay();

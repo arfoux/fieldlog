@@ -1,7 +1,7 @@
 # delta-sync
 
-Manifest-first delta sync between two fielog replicas (`src/deltasync.ts`).
-Port of skill-13 (`delta-sync`, status SOLID) to fielog.
+Manifest-first delta sync between two fieldlog replicas (`src/deltasync.ts`).
+Port of skill-13 (`delta-sync`, status SOLID) to fieldlog.
 
 ## protocol
 

@@ -100,7 +100,7 @@ async function rawPull(port: number, since: unknown): Promise<RawPullOk | RawPul
 
 describe('flfix-relay-budgets', () => {
   it('push batch over maxBatchEvents is rejected before store', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-flrelay-bcap-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flrelay-bcap-'));
     const file = join(dir, 'relay.log');
     const server = openServer({ file, maxBatchEvents: 3 });
     const port = await server.start();
@@ -118,7 +118,7 @@ describe('flfix-relay-budgets', () => {
   }, 30_000);
 
   it('oversize push event is rejected before store', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-flrelay-bytes-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flrelay-bytes-'));
     // Size the cap off a real event so the boundary is exact, not magic.
     const room = JSON.stringify(mkEv('b-size-probe')).length;
     const server = openServer({ file: join(dir, 'relay.log'), maxEventBytes: room + 100 });
@@ -168,7 +168,7 @@ describe('flfix-relay-budgets', () => {
   }, 30_000);
 
   it('startup refuses an oversized relay file instead of loading it into RAM', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-flrelay-guard-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flrelay-guard-'));
     const file = join(dir, 'relay.log');
     writeFileSync(file, JSON.stringify(mkEv('b-guard-1')) + '\n');
 

@@ -32,7 +32,7 @@ function linesOf(logPath: string): string[] {
 function isMarkerLine(line: string): boolean {
   try {
     const o = JSON.parse(line) as { marker?: string };
-    return o.marker === 'fielog-truncate';
+    return o.marker === 'fieldlog-truncate';
   } catch {
     return false;
   }
@@ -59,7 +59,7 @@ async function dbTotal(k: { query: <T>(sql: string) => Promise<T[]> }): Promise<
 
 describe('chaos-kill', () => {
   it('kill during write: durable prefix survives, verify passes, appends continue', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-chaos-write-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-chaos-write-'));
     writeFileSync(
       join(dir, 'child.ts'),
       `import { createKernel } from ${KERNEL};\n` +
@@ -96,7 +96,7 @@ describe('chaos-kill', () => {
   }, 60_000);
 
   it('kill during seal: swept prefix stays sealed, chain re-anchors on the marker', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-chaos-seal-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-chaos-seal-'));
     writeFileSync(
       join(dir, 'child.ts'),
       `import { createKernel } from ${KERNEL};\n` +
@@ -149,7 +149,7 @@ describe('chaos-kill', () => {
   }, 60_000);
 
   it('kill during sync: ack cursor resumes, re-push is exact-once', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-chaos-sync-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-chaos-sync-'));
     writeFileSync(
       join(dir, 'child.ts'),
       `import { createKernel } from ${KERNEL};\n` +

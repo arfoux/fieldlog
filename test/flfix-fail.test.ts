@@ -18,7 +18,7 @@ let log: AppendLog;
 let store: EventStore;
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'fielog-flfix-fail-'));
+  dir = mkdtempSync(join(tmpdir(), 'fieldlog-flfix-fail-'));
   log = openLog(join(dir, 'ledger.log'), 'devA');
   store = openStore(join(dir, 'ledger.db'));
 });

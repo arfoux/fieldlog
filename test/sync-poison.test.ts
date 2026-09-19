@@ -16,7 +16,7 @@ const fast = { baseMs: 1, maxMs: 30 };
 
 describe('poison pull', () => {
   it('skips dead-letters, advances the cursor, keeps syncing', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-poison-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-poison-'));
     const relay = new MemoryRelay();
     const good1: LogEvent = { id: 'good-1', seq: 1, type: 'entry', actor: 'budi', device_id: 'devA', ts_device: 1, payload: { value: 1000, actor: 'budi' }, prev_hash: 'GENESIS', hash: 'h1' };
     const poison: LogEvent = { id: 'poison-1', seq: 2, type: 'entry', actor: 'mallory', device_id: 'mallory-dev', ts_device: 2, payload: { value: -999 }, prev_hash: 'h1', hash: 'h2' };

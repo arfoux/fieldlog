@@ -39,7 +39,7 @@ function relayEntry(id: string, seq: number, device: string, value: number): Log
 
 describe('flfix-perf-sync', () => {
   it('purgeRevoked scans only the new suffix under stable revoke state', () => {
-    const { log, store, close } = pair('fielog-perf-sync-');
+    const { log, store, close } = pair('fieldlog-perf-sync-');
     try {
       for (let i = 0; i < 3; i++) appendEntry(log, store, 100 + i);
       const first = purgeRevoked(log, store, { revokedDevices: new Set(['evil']) });
@@ -60,7 +60,7 @@ describe('flfix-perf-sync', () => {
   });
 
   it('purge cursor survives reopen via store meta', () => {
-    const { dir, log, store, close } = pair('fielog-perf-sync-');
+    const { dir, log, store, close } = pair('fieldlog-perf-sync-');
     for (let i = 0; i < 2; i++) appendEntry(log, store, 100 + i);
     assert.deepEqual(purgeRevoked(log, store, { revokedDevices: ['evil'] }), { scanned: 2, quarantined: 2 });
     close();
@@ -76,7 +76,7 @@ describe('flfix-perf-sync', () => {
   });
 
   it('grown revoke set falls back to a full rescan', () => {
-    const { log, store, close } = pair('fielog-perf-sync-', 'devA');
+    const { log, store, close } = pair('fieldlog-perf-sync-', 'devA');
     try {
       appendEntry(log, store, 100, 'devA');
       appendEntry(log, store, 200, 'devB');
@@ -97,7 +97,7 @@ describe('flfix-perf-sync', () => {
   });
 
   it('unversioned predicate always rescans so late revokes still purge', () => {
-    const { log, store, close } = pair('fielog-perf-sync-', 'devA');
+    const { log, store, close } = pair('fieldlog-perf-sync-', 'devA');
     try {
       appendEntry(log, store, 100, 'devA');
       appendEntry(log, store, 200, 'devB');
@@ -114,7 +114,7 @@ describe('flfix-perf-sync', () => {
   });
 
   it('versioned predicate goes incremental; a version bump rescans', () => {
-    const { log, store, close } = pair('fielog-perf-sync-', 'devA');
+    const { log, store, close } = pair('fieldlog-perf-sync-', 'devA');
     try {
       appendEntry(log, store, 100, 'devA');
       appendEntry(log, store, 200, 'devB');
@@ -137,7 +137,7 @@ describe('flfix-perf-sync', () => {
   });
 
   it('pullRemote with revoke signal advances the persisted purge cursor', async () => {
-    const { log, store, close } = pair('fielog-perf-sync-', 'devA');
+    const { log, store, close } = pair('fieldlog-perf-sync-', 'devA');
     try {
       const relay = new MemoryRelay();
       await relay.push([relayEntry('good-p', 1, 'devA', 1000), relayEntry('bad-p', 2, 'devB', 9000)]);

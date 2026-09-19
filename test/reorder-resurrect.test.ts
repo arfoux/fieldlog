@@ -25,7 +25,7 @@ function mkEv(o: {
 
 describe('out-of-order resurrection', () => {
   it('undo before entry still voids when the target arrives', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-reorder-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-reorder-'));
     const pay = mkEv({
       id: 'pay-early-undo', seq: 2, type: 'entry', actor: 'budi',
       ts: 2, payload: { value: 75000, actor: 'budi' }, prev: 'h1',
@@ -51,7 +51,7 @@ describe('out-of-order resurrection', () => {
   }, 30_000);
 
   it('resolve before entry still resolves when the target arrives', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-reorder-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-reorder-'));
     const pay = mkEv({
       id: 'pay-late', seq: 2, type: 'entry', actor: 'budi',
       ts: 2, payload: { value: 90000, actor: 'budi' }, prev: 'h1',
@@ -76,7 +76,7 @@ describe('out-of-order resurrection', () => {
   }, 30_000);
 
   it('in-order arrival still converges (no double-void, no double-resolve)', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-reorder-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-reorder-'));
     const pay = mkEv({
       id: 'pay-ordered', seq: 1, type: 'entry', actor: 'budi',
       ts: 1, payload: { value: 60000, actor: 'budi' }, prev: 'GENESIS',
@@ -99,7 +99,7 @@ describe('out-of-order resurrection', () => {
   }, 30_000);
 
   it('undo before tally.remove restores tally when the remove lands', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-reorder-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-reorder-'));
     const add = mkEv({
       id: 'add-1', seq: 1, type: 'tally.add', ts: 1,
       payload: { item: 'WIDGET-01', qty: 10 }, prev: 'GENESIS',

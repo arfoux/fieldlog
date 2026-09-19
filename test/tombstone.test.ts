@@ -33,7 +33,7 @@ function mkEv(seq: number, id: string, type: string, payload: Record<string, unk
 }
 
 function memStore(): { store: EventStore; done: () => void } {
-  const dir = mkdtempSync(join(tmpdir(), 'fielog-tomb-'));
+  const dir = mkdtempSync(join(tmpdir(), 'fieldlog-tomb-'));
   const store = openStore(join(dir, 't.db'));
   return { store, done: () => store.close() };
 }
@@ -133,7 +133,7 @@ describe('tombstone', () => {
   });
 
   it('hide keeps bytes across reopen and fails fast on unknown targets', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-tomb-k'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-tomb-k'));
     const file = join(dir, 'ledger.db');
     const k = await createKernel({ file });
     closers.push(() => k.close());
@@ -167,7 +167,7 @@ describe('tombstone', () => {
   });
 
   it('hide syncs to a peer like any event', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-tomb-s'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-tomb-s'));
     const ka = await createKernel({ file: join(dir, 'a.db') });
     const kb = await createKernel({ file: join(dir, 'b.db') });
     closers.push(() => ka.close(), () => kb.close());

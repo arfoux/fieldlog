@@ -1,4 +1,4 @@
-# fielog benchmarks
+# fieldlog benchmarks
 
 Measured 2026-09-12 (slice fa03a62, bun 1.4.0, same machine below).
 Every number below is a real measurement from this

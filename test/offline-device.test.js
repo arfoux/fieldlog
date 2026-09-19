@@ -11,7 +11,7 @@ describe('offline device flow', () => {
   let dir;
   let k;
   beforeAll(async () => {
-    dir = mkdtempSync(join(tmpdir(), 'fielog-device-'));
+    dir = mkdtempSync(join(tmpdir(), 'fieldlog-device-'));
     k = await createKernel({ file: join(dir, 'ledger.db') });
   });
   afterAll(() => k?.close());

@@ -29,7 +29,7 @@ const signed = (priv: string, ev: LogEvent): LogEvent => ({ ...ev, signature: si
 
 describe('forgery pull gate', () => {
   it('accepts valid signed pulls', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-forge-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-forge-'));
     const budi = generateDeviceKey('budi-dev');
     const e1 = signed(budi.privateKeyPem, mkEv({
       id: 'valid-1', seq: 1, type: 'entry', actor: 'budi', deviceId: budi.deviceId,
@@ -50,7 +50,7 @@ describe('forgery pull gate', () => {
   }, 30_000);
 
   it('rejects forged 1000000 entry as budi and still advances', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-forge-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-forge-'));
     const budi = generateDeviceKey('budi-dev');
     const mallory = generateDeviceKey('mallory-dev');
     // Forged: claims budi's device id, signed by mallory's key.
@@ -82,7 +82,7 @@ describe('forgery pull gate', () => {
   }, 30_000);
 
   it('mixed pulls keep the valid, drop the forged', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-forge-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-forge-'));
     const budi = generateDeviceKey('budi-dev');
     const mallory = generateDeviceKey('mallory-dev');
     const v1 = signed(budi.privateKeyPem, mkEv({
@@ -121,7 +121,7 @@ describe('forgery pull gate', () => {
   }, 30_000);
 
   it('high-value entry needs the countersign threshold', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-forge-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-forge-'));
     const a = generateDeviceKey('device-a');
     const b = generateDeviceKey('device-b');
     const registry = new Map([[a.deviceId, a.publicKeyPem], [b.deviceId, b.publicKeyPem]]);

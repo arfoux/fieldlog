@@ -1,4 +1,4 @@
-# fielog decisions — 5 keputusan lisan, kini tertulis
+# fieldlog decisions — 5 keputusan lisan, kini tertulis
 
 Date: 2026-09-12. Bahan: `src/auth.ts`, `src/relay.ts`, `docs/contracts.md`.
 Tak ada keputusan lisan tersisa setelah berkas ini.
@@ -13,7 +13,7 @@ Tak ada keputusan lisan tersisa setelah berkas ini.
 ## 2. `dist/`: out-of-scope, run kanonis via `src` + bun
 
 - Keputusan: `dist/` artefak build lokal. Jangan baca, edit, kutip, atau publish. Run kanonis = bun atas TS `src` langsung; `tsc` hanya verifikasi ketik/build.
-- Konteks: `tsconfig.json` (`outDir: dist`, `rootDir: src`); `.gitignore` daftar `dist/`; `package.json` (`main: src/index.ts`, `bin: ./bin/fielog.ts`, `files: [src, bin, README, LICENSE, CHANGELOG]` — tanpa `dist`); scripts kanonis `bun test`, `bun bench/bench-*.ts`, `bun demo/two-node.ts`, `build: tsc -p tsconfig.json`.
+- Konteks: `tsconfig.json` (`outDir: dist`, `rootDir: src`); `.gitignore` daftar `dist/`; `package.json` (`main: src/index.ts`, `bin: ./bin/fieldlog.ts`, `files: [src, bin, README, LICENSE, CHANGELOG]` — tanpa `dist`); scripts kanonis `bun test`, `bun bench/bench-*.ts`, `bun demo/two-node.ts`, `build: tsc -p tsconfig.json`.
 - Alternatif ditolak: run via `node dist/*` sebagai acuan. Duplikat sumber kebenaran, basi setelah tiap edit `src`.
 - Revisit iff: publish butuh JS kompilasi. Maka ubah `files` + run kanonis eksplisit, bukan diam-diam.
 
@@ -27,10 +27,10 @@ Tak ada keputusan lisan tersisa setelah berkas ini.
 
 ## 4. Claim: ephemeral, TTL default 15 mnt — milik moltarc, pointer saja
 
-- Keputusan: fielog tanpa modul claim. Claim hidup di moltarc saja; fielog money-state selesai via resolve/sync-ack, bukan permit.
-- Konteks moltarc (pointer, bukan duplikat): `ClaimStore` eksplisit EPHEMERAL in-memory; restart tanpa snapshot `toJSON` + restore `fromJSON` = spent jadi spendable lagi (double-spend), tanpa auto-persist (`../../molt/src/claim.ts:4-10`, `../../molt/src/claim.ts:63-65`); `DEFAULT_TTL_MS` 15 mnt dengan rasional jendela (`../../molt/src/claim.ts:41-46`); argumen omitted → default, eksplisit `undefined`/`null` → never-expire, numerik → custom (`../../molt/src/claim.ts:48-53`); `use()` kedaluwarsa lapor `expired`, tak pernah ditandai spent (`../../molt/src/claim.ts:97-105`); kontrak kanonis `../../molt/docs/contracts.md` → Claim TTL. Paralel fielog: TTL token relay `GRANT_TTL_MS` 24 jam / `CAP_TOKEN_TTL_MS` 15 mnt (`src/auth.ts:68-69`, `docs/capability-token.md:38-46`) — itu capability relay, bukan claim.
-- Alternatif ditolak: claim engine kedua di fielog. Fork semantik expiry/persist/reconcile yang sudah ada di moltarc.
-- Revisit iff: fielog butuh single-spend permit offline. Maka impor dari moltarc, jangan fork.
+- Keputusan: fieldlog tanpa modul claim. Claim hidup di moltarc saja; fieldlog money-state selesai via resolve/sync-ack, bukan permit.
+- Konteks moltarc (pointer, bukan duplikat): `ClaimStore` eksplisit EPHEMERAL in-memory; restart tanpa snapshot `toJSON` + restore `fromJSON` = spent jadi spendable lagi (double-spend), tanpa auto-persist (`../../molt/src/claim.ts:4-10`, `../../molt/src/claim.ts:63-65`); `DEFAULT_TTL_MS` 15 mnt dengan rasional jendela (`../../molt/src/claim.ts:41-46`); argumen omitted → default, eksplisit `undefined`/`null` → never-expire, numerik → custom (`../../molt/src/claim.ts:48-53`); `use()` kedaluwarsa lapor `expired`, tak pernah ditandai spent (`../../molt/src/claim.ts:97-105`); kontrak kanonis `../../molt/docs/contracts.md` → Claim TTL. Paralel fieldlog: TTL token relay `GRANT_TTL_MS` 24 jam / `CAP_TOKEN_TTL_MS` 15 mnt (`src/auth.ts:68-69`, `docs/capability-token.md:38-46`) — itu capability relay, bukan claim.
+- Alternatif ditolak: claim engine kedua di fieldlog. Fork semantik expiry/persist/reconcile yang sudah ada di moltarc.
+- Revisit iff: fieldlog butuh single-spend permit offline. Maka impor dari moltarc, jangan fork.
 
 ## 5. Bench tunggal bertanggal; kanonis CHANGELOG + honesty
 

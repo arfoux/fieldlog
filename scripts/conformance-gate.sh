@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# conformance-gate.sh — pra-merge gate for fielog spins.
+# conformance-gate.sh — pra-merge gate for fieldlog spins.
 #
 # Checks (each prints PASS/FAIL with a reason; any FAIL => GATE: FAIL, exit 1):
 #   1. base   — branch forked from the newest main tip (merge-base == main tip).

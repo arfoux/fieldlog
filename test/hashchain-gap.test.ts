@@ -7,7 +7,7 @@ import { GENESIS_HASH, hashFor, openHashChain, verifyChain } from '../src/hashch
 import { join } from 'node:path';
 
 function twoEvents() {
-  const dir = mkdtempSync(join(tmpdir(), 'fielog-hashchain-gap-'));
+  const dir = mkdtempSync(join(tmpdir(), 'fieldlog-hashchain-gap-'));
   const c = openHashChain(join(dir, 'a.log'), 'dev');
   c.append({ type: 'note', payload: { n: 1 } });
   c.append({ type: 'note', payload: { n: 2 } });

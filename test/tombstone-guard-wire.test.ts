@@ -30,7 +30,7 @@ describe('tombstone-guard-wire', () => {
   });
 
   async function mkKernel() {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-guard-wire-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-guard-wire-'));
     const k = await createKernel({ file: join(dir, 'ledger.db') });
     closers.push(() => k.close());
     return k;

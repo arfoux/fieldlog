@@ -31,7 +31,7 @@ await k.snapshot();    // seal the acked prefix into ledger.snapshot.db
 await k.truncate();    // sweep the sealed prefix from ledger.log
 ```
 
-The first line of a swept log = the `fielog-truncate` marker chaining the
+The first line of a swept log = the `fieldlog-truncate` marker chaining the
 suffix to the discarded prefix, so `verifyLog` stays whole.
 
 ## Binding rules

@@ -14,7 +14,7 @@ Include: version (`package.json`), affected file/line, impact
 
 In scope: `src/` (log chain, store apply, sync verify, relay authorize,
 auth, retain clamp, tombstone guard, cas re-hash, quota fail-closed),
-`bin/fielog.ts` (signed mode by default), `demo/` + `example/` as patterns
+`bin/fieldlog.ts` (signed mode by default), `demo/` + `example/` as patterns
 copied by users.
 
 Out of scope: hardening of users' own deployments (terminating TLS, firewall,

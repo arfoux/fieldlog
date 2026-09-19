@@ -11,7 +11,7 @@ const CORRUPT_SEQ = 5; // 1-based line to bitrot
 
 describe('hash-chain-log', () => {
   it('append N, verify OK, corrupt 1 -> quarantine, re-anchor', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-hashchain-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-hashchain-'));
     const path = join(dir, 'rantang.log');
 
     // (1) Append N, verify OK.
@@ -59,7 +59,7 @@ describe('hash-chain-log', () => {
   });
 
   it('pure verifyChain rejects tamper without a gap alibi', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-hashchain-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-hashchain-'));
     const c = openHashChain(join(dir, 'rantang.log'), 'hp-uji');
     try {
       c.append({ type: 'note', payload: { n: 1 } });

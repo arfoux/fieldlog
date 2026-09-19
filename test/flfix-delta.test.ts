@@ -15,7 +15,7 @@ let log: AppendLog;
 let store: EventStore;
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'fielog-flfix-delta-'));
+  dir = mkdtempSync(join(tmpdir(), 'fieldlog-flfix-delta-'));
   log = openLog(join(dir, 'b.log'), 'b');
   store = openStore(join(dir, 'b.db'));
 });

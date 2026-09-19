@@ -12,7 +12,7 @@ import { parseN } from './util.ts';
 const N = parseN(process.argv, 10_000);
 const CHUNK = 500;
 const fast = { baseMs: 1, maxMs: 30 };
-const dir = mkdtempSync(join(tmpdir(), 'fielog-bench-sync-'));
+const dir = mkdtempSync(join(tmpdir(), 'fieldlog-bench-sync-'));
 const server = new WsRelayServer({ port: 0, file: join(dir, 'relay.log') });
 const port = await server.start();
 

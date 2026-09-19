@@ -1,6 +1,6 @@
 # bench honesty (healthy)
 
-Port of skill-7 (`bench-honesty`, status SOLID) to fielog.
+Port of skill-7 (`bench-honesty`, status SOLID) to fieldlog.
 HEALTHY = slice + corpus + machine recorded; numbers without all three are rejected.
 A bench number is a claim; the three pins are the proof. Any pin
 mismatch -> STOP, do not quote the number (see `docs/mismatch-stop.md`).
@@ -89,7 +89,7 @@ evidence base-hash:
 
 evidence file-scope:
   command: pwd; git status --short
-  actual:   C:/Users/HP/orca/workspaces/fielog/w3b-bench, clean
+  actual:   C:/Users/HP/orca/workspaces/fieldlog/w3b-bench, clean
   only touches bench/honesty.md + scripts/bench-check.sh -> PASS
 
 evidence test-count:

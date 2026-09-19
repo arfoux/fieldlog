@@ -1,4 +1,4 @@
-# fielog changelog
+# fieldlog changelog
 
 All entries describe user-visible changes shipped under each tag, in tag order.
 Untagged commits are folded into the next tag that shipped them.
@@ -66,12 +66,12 @@ Untagged commits are folded into the next tag that shipped them.
 
 ## v0.5.0 — snapshot, truncate, atomic apply
 
-- Retention: `kernel.snapshot(dest)` captures the read-model plus sealed seq; `kernel.truncate()` sweeps the sealed log prefix behind a `fielog-truncate` marker that chains the kept suffix to the removed prefix.
+- Retention: `kernel.snapshot(dest)` captures the read-model plus sealed seq; `kernel.truncate()` sweeps the sealed log prefix behind a `fieldlog-truncate` marker that chains the kept suffix to the removed prefix.
 - Atomic apply: a kill between log append and read-model apply can no longer orphan an event; reopen replays the log into the store idempotently.
 
 ## v0.6.0 — cli
 
-- New `bin/fielog.ts`: `serve --port <n> --file <relay.log>` runs a file-backed ws relay, `sync --file <ledger.db> --relay <ws url>` pushes and pulls a kernel file's delta, `demo` runs the two-node roundtrip and proves equal totals.
+- New `bin/fieldlog.ts`: `serve --port <n> --file <relay.log>` runs a file-backed ws relay, `sync --file <ledger.db> --relay <ws url>` pushes and pulls a kernel file's delta, `demo` runs the two-node roundtrip and proves equal totals.
 
 ## v0.7.0 — relay capability tokens
 

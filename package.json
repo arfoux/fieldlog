@@ -1,8 +1,8 @@
 {
-  "name": "fielog",
+  "name": "fieldlog",
   "version": "0.15.0",
   "description": "Fieldlog — write anywhere, resolve later. Offline-first append-log + SQLite read-model + sync.",
-  "repository": { "type": "git", "url": "git+https://github.com/arfoux/fielog.git" },
+  "repository": { "type": "git", "url": "git+https://github.com/arfoux/fieldlog.git" },
   "type": "module",
   "main": "src/index.ts",
   "exports": {
@@ -16,7 +16,7 @@
     "CHANGELOG.md"
   ],
   "bin": {
-    "fielog": "./bin/fielog.js"
+    "fieldlog": "bin/fieldlog.js"
   },
   "scripts": {
     "test": "bun test",

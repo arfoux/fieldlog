@@ -23,7 +23,7 @@ describe('bounded outbox', () => {
   });
 
   it('refuses past the cap with an actionable ERR_OUTBOX_FULL', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-outbox-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-outbox-'));
     const k = await createKernel({ file: join(dir, 'ledger.db'), maxPending: 5 });
     closers.push(() => k.close());
     for (let i = 0; i < 5; i++) {
@@ -43,7 +43,7 @@ describe('bounded outbox', () => {
   });
 
   it('sync drains in order and re-opens the outbox', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-outbox-drain-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-outbox-drain-'));
     const k = await createKernel({ file: join(dir, 'ledger.db'), maxPending: 5 });
     closers.push(() => k.close());
     const relay = new MemoryRelay();
@@ -74,7 +74,7 @@ describe('bounded outbox', () => {
 
   it('defaults to a 50k cap when no opt is given', async () => {
     assert.equal(DEFAULT_OUTBOX_CAP, 50_000);
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-outbox-default-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-outbox-default-'));
     const k = await createKernel({ file: join(dir, 'ledger.db') });
     closers.push(() => k.close());
     for (let i = 0; i < 10; i++) {

@@ -1,4 +1,4 @@
-// hashchain.ts — skill-12 hash-chain-log port (stable) for fielog.
+// hashchain.ts — skill-12 hash-chain-log port (stable) for fieldlog.
 //
 // Append + verify + quarantine + re-anchor facade over log.ts. The chain
 // itself lives in log.ts (canonicalOf/hashFor/openLog); this module names

@@ -23,7 +23,7 @@ describe('relay restart', () => {
   });
 
   it('30 events survive kill+restart and the client resumes', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-restart-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-restart-'));
     const file = join(dir, 'relay.log');
     const server = new WsRelayServer({ port: 0, file });
     const port = await server.start();

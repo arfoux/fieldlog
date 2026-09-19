@@ -36,7 +36,7 @@ describe('corpus-gen replay', () => {
     const m = corpusManifest(c);
     assert.equal(m.n, 200);
     assert.equal(m.counts.entry + m.counts.add + m.counts.remove + m.counts.undo, 200);
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-corpus-gen-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-corpus-gen-'));
     const k = await createKernel({ file: join(dir, 'ledger.db') });
     try {
       const o = new Oracle();

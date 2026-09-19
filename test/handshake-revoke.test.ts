@@ -30,7 +30,7 @@ function adminRig(): { admin: ReturnType<typeof generateDeviceKey>; admins: Reco
 }
 
 async function rig() {
-  const dir = mkdtempSync(join(tmpdir(), 'fielog-hsrev-'));
+  const dir = mkdtempSync(join(tmpdir(), 'fieldlog-hsrev-'));
   const { admin, admins } = adminRig();
   const devA = generateDeviceKey('device-a');
   const devB = generateDeviceKey('device-b');

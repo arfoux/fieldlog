@@ -24,7 +24,7 @@ async function seed(dir: string): Promise<{ file: string; logPath: string }> {
 
 describe('corrupt-gen detector', () => {
   it('bitflip mid-file quarantines one line and re-anchors the gap', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-corruptgen-bitflip-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-corruptgen-bitflip-'));
     const { file, logPath } = await seed(dir);
     const info = bitflip(logPath, 5);
     assert.equal(info.before, '"');
@@ -45,7 +45,7 @@ describe('corrupt-gen detector', () => {
   }, 30_000);
 
   it('torn tail truncates on open and flags repairedtail', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-corruptgen-torn-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-corruptgen-torn-'));
     const { file, logPath } = await seed(dir);
     tornTail(logPath);
 
@@ -61,7 +61,7 @@ describe('corrupt-gen detector', () => {
   }, 30_000);
 
   it('truncate drops the suffix but keeps the prefix valid', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-corruptgen-trunc-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-corruptgen-trunc-'));
     const { file, logPath } = await seed(dir);
     const info = truncateTail(logPath, 2);
     assert.equal(info.kept, N - 2);

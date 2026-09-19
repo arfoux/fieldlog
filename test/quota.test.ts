@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { openQuotaGuard } from '../src/quota.ts';
 
 function dir(): string {
-  return mkdtempSync(join(tmpdir(), 'fielog-quota-'));
+  return mkdtempSync(join(tmpdir(), 'fieldlog-quota-'));
 }
 
 describe('quota-guard reserve + fail-closed', () => {

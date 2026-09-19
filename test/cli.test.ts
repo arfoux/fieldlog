@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { createKernel } from '../src/kernel.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const CLI = join(root, 'bin', 'fielog.ts');
+const CLI = join(root, 'bin', 'fieldlog.ts');
 const BUN = process.execPath;
 
 const procs: Array<ReturnType<typeof Bun.spawn>> = [];
@@ -56,7 +56,7 @@ async function runOnce(args: string[], ms = 30000): Promise<{ code: number; out:
 
 describe('cli', () => {
   it('serve+sync roundtrip 20 event exact-once', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-cli-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-cli-'));
     const relayFile = join(dir, 'relay.log');
     const adb = join(dir, 'a.db');
     const bdb = join(dir, 'b.db');

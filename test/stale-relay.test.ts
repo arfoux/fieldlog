@@ -14,7 +14,7 @@ const fast = { baseMs: 1, maxMs: 30 };
 
 describe('stale-relay pull miss', () => {
   it('suffix living only on the second relay is applied', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-stalerelay-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-stalerelay-'));
     const stale = new MemoryRelay();
     const fresh = new MemoryRelay();
     const seed = await createKernel({ file: join(dir, 'seed.db') });
@@ -45,7 +45,7 @@ describe('stale-relay pull miss', () => {
   }, 30_000);
 
   it('split replicas converge: stale prefix + fresh suffix both land', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-stalerelay-split-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-stalerelay-split-'));
     const stale = new MemoryRelay();
     const fresh = new MemoryRelay();
     const seed = await createKernel({ file: join(dir, 'seed.db') });

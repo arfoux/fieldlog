@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/gifs/logo.svg" alt="fielog logo — event log with verification stamp" width="128">
+  <img src="docs/gifs/logo.svg" alt="fieldlog logo — event log with verification stamp" width="128">
 </p>
 
-# fielog — Fieldlog
+# fieldlog — Fieldlog
 
 Write anywhere, resolve later.
 
@@ -12,7 +12,7 @@ Works for game events, file versions, telemetry samples — a ledger entry
 (below) is one domain, not the whole story.
 
 ```js
-import { createKernel } from 'fielog';
+import { createKernel } from 'fieldlog';
 
 const k = await createKernel({ file: 'ledger.db' });
 await k.append({ type: 'entry', value: 5000, actor: 'device-01' });
@@ -25,7 +25,7 @@ Any event shape is stored and synced — game kills, file versions, telemetry
 samples ride the same log:
 
 ```js
-import { createKernel } from 'fielog';
+import { createKernel } from 'fieldlog';
 
 const k = await createKernel({ file: 'app.db' });
 await k.append({ type: 'kill', killer: 'player-1', victim: 'boss-3' });
@@ -42,10 +42,10 @@ into queryable tables.
 ## Getting started
 
 - [quickstart](docs/quickstart.md) — 1 device offline, 2 devices syncing (dev + signed mode), runnable
-- [cli](docs/cli.md) — `serve` / `sync` / `demo`, every flag verified against `bin/fielog.ts`
+- [cli](docs/cli.md) — `serve` / `sync` / `demo`, every flag verified against `bin/fieldlog.ts`
 - Two demos, one regime each, no surviving state: `bun run demo`
   (`demo/two-node.ts`, unsigned dev, fixed port 8091) vs
-  `bun bin/fielog.ts demo` (`bin/fielog.ts:cmdDemo`, signed, ephemeral
+  `bun bin/fieldlog.ts demo` (`bin/fieldlog.ts:cmdDemo`, signed, ephemeral
   port). Either proves 20-entry totals then exits; neither graduates to
   the other (unsigned rows carry no signatures). Real ledger example:
   `example/ledger.mjs` (`bun example/ledger.mjs`)

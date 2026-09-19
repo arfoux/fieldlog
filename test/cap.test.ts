@@ -36,7 +36,7 @@ describe('relay capabilities', () => {
   });
 
   it('forged token rejected on push and pull', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-cap-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-cap-'));
     const dev = generateDeviceKey('device-a');
     const attacker = generateDeviceKey('attacker');
     const server = new WsRelayServer({ port: 0, file: join(dir, 'relay.log') });
@@ -59,7 +59,7 @@ describe('relay capabilities', () => {
   }, 30_000);
 
   it('expired token rejected on push and pull', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-cap-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-cap-'));
     const dev = generateDeviceKey('device-a');
     const server = new WsRelayServer({ port: 0, file: join(dir, 'relay.log') });
     server.registerDevice(dev.deviceId, dev.publicKeyPem);
@@ -79,7 +79,7 @@ describe('relay capabilities', () => {
   }, 30_000);
 
   it('revoked device rejected after revoke broadcast', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-cap-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-cap-'));
     const devA = generateDeviceKey('device-a');
     const devB = generateDeviceKey('device-b');
     const server = new WsRelayServer({ port: 0, file: join(dir, 'relay.log') });
@@ -119,7 +119,7 @@ describe('relay capabilities', () => {
   }, 30_000);
 
   it('valid device unaffected and revocation survives relay restart', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-cap-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-cap-'));
     const file = join(dir, 'relay.log');
     const devA = generateDeviceKey('device-a');
     const devB = generateDeviceKey('device-b');

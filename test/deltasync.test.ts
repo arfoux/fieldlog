@@ -56,7 +56,7 @@ describe('deltasync manifest-first delta sync', () => {
   let sb: EventStore;
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), 'fielog-delta-'));
+    dir = mkdtempSync(join(tmpdir(), 'fieldlog-delta-'));
     la = openLog(join(dir, 'a.log'), 'a');
     sa = openStore(join(dir, 'a.db'));
     lb = openLog(join(dir, 'b.log'), 'b');

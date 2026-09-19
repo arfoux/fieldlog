@@ -1,4 +1,4 @@
-// quota.ts — skill-15 quota-guard port for fielog.
+// quota.ts — skill-15 quota-guard port for fieldlog.
 //
 // Admission control over on-disk usage. A guard tracks a byte ceiling and a
 // set of files whose size counts as usage; callers `reserve(n)` before

@@ -1,6 +1,6 @@
 # architecture
 
-fielog = append-only log (source of truth) + SQLite read-model + sync later.
+fieldlog = append-only log (source of truth) + SQLite read-model + sync later.
 Slogan: write anywhere, resolve later.
 
 ```

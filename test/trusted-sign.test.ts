@@ -15,7 +15,7 @@ const fast = { baseMs: 1, maxMs: 30 };
 
 describe('trusted-mode source signing', () => {
   it('signed kernel appends apply under a trusted registry', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-trustedsign-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-trustedsign-'));
     const a = generateDeviceKey('device-a');
     const b = generateDeviceKey('device-b');
     const registry = new Map([

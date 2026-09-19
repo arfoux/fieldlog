@@ -18,7 +18,7 @@ const ACTOR = ['device-a', 'device-b'];
 const ITEMS = ['WIDGET-01', 'WIDGET-02'];
 
 async function runOracle(seed: number): Promise<void> {
-  const dir = mkdtempSync(join(tmpdir(), 'fielog-oracle-'));
+  const dir = mkdtempSync(join(tmpdir(), 'fieldlog-oracle-'));
   const dbPath = join(dir, 'ledger.db');
   const relay = new MemoryRelay();
   let k: Kernel = await createKernel({ file: dbPath });

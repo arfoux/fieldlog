@@ -54,13 +54,13 @@ describe('flfix-log: canonical payload key order', () => {
 describe('flfix-log: isMarker requires v===1', () => {
   it('accepts the swept marker shape', () => {
     assert.equal(
-      isMarker({ v: 1, marker: 'fielog-truncate', truncated_before: 2, tip: 'abc', next_seq: 3 }),
+      isMarker({ v: 1, marker: 'fieldlog-truncate', truncated_before: 2, tip: 'abc', next_seq: 3 }),
       true,
     );
   });
 
   it('rejects markers without v===1', () => {
-    const good = { v: 1, marker: 'fielog-truncate', truncated_before: 2, tip: 'abc', next_seq: 3 };
+    const good = { v: 1, marker: 'fieldlog-truncate', truncated_before: 2, tip: 'abc', next_seq: 3 };
     const { v: _v, ...noV } = good;
     void _v;
     assert.equal(isMarker(noV), false);
@@ -74,7 +74,7 @@ describe('flfix-log: isMarker requires v===1', () => {
     log.append({ type: 'note', payload: { content: 'x' } });
     log.close();
     const bogus = JSON.stringify({
-      marker: 'fielog-truncate',
+      marker: 'fieldlog-truncate',
       truncated_before: 1,
       tip: 'GENESIS',
       next_seq: 2,

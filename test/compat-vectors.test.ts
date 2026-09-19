@@ -40,7 +40,7 @@ describe('compat vectors (healthy set)', () => {
   const kernels = new Map<string, Kernel>();
   beforeAll(async () => {
     for (const f of FIXTURES) {
-      const dir = mkdtempSync(join(tmpdir(), 'fielog-healthy-'));
+      const dir = mkdtempSync(join(tmpdir(), 'fieldlog-healthy-'));
       copyFileSync(join(here, 'fixtures', 'v0.5', f.file), join(dir, 'ledger.log'));
       kernels.set(f.file, await createKernel({ file: join(dir, 'ledger.db') }));
     }

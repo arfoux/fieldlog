@@ -83,7 +83,7 @@ base-hash proof:
 
 file-scope proof:
   command: pwd; git status --short
-  actual:   C:/Users/HP/orca/workspaces/fielog/w2-mismatch-stop, clean
+  actual:   C:/Users/HP/orca/workspaces/fieldlog/w2-mismatch-stop, clean
   only touches docs/mismatch-stop.md -> PASS
 
 test-count proof:

@@ -68,7 +68,7 @@ function openClient(url: string, extra: Record<string, unknown> = {}) {
 
 describe('flfix-relay', () => {
   it('null-fd push fails closed: unwritten events are never acked', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-flrelay-nullfd-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flrelay-nullfd-'));
     const file = join(dir, 'relay.log');
     const server = openServer({ file });
     const port = await server.start();
@@ -85,7 +85,7 @@ describe('flfix-relay', () => {
   }, 30_000);
 
   it('push_ack carries only actually-stored ids, duplicates still resume', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-flrelay-ack-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flrelay-ack-'));
     const server = openServer({ file: join(dir, 'relay.log') });
     const port = await server.start();
     const c = openClient(`ws://127.0.0.1:${port}`);
@@ -117,7 +117,7 @@ describe('flfix-relay', () => {
   });
 
   it('syncRevokes carries no echo tail', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-flrelay-echo-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flrelay-echo-'));
     const admin = generateDeviceKey('admin-1');
     const admins = { [admin.deviceId]: admin.publicKeyPem };
     const dev = generateDeviceKey('device-a');
@@ -147,7 +147,7 @@ describe('flfix-relay', () => {
   }, 30_000);
 
   it('liveBuf is bounded while pull stays the source of truth', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-flrelay-live-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flrelay-live-'));
     const server = openServer({ file: join(dir, 'relay.log') });
     const port = await server.start();
     const url = `ws://127.0.0.1:${port}`;
@@ -175,7 +175,7 @@ describe('flfix-relay', () => {
   }, 30_000);
 
   it('double start is rejected and the first server keeps working', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-flrelay-start-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flrelay-start-'));
     const server = openServer({ file: join(dir, 'relay.log') });
     const port = await server.start();
     await assert.rejects(server.start(), /already started/);
@@ -185,7 +185,7 @@ describe('flfix-relay', () => {
   }, 30_000);
 
   it('gated push with an empty revoke log sorts nothing', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-flrelay-nosort-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flrelay-nosort-'));
     const dev = generateDeviceKey('device-a');
     const server = openServer({
       file: join(dir, 'relay.log'),
@@ -212,7 +212,7 @@ describe('flfix-relay', () => {
   }, 30_000);
 
   it('revoke_push persists the fresh tail with no snapshot sort', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-flrelay-rpush-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-flrelay-rpush-'));
     const admin = generateDeviceKey('admin-1');
     const admins = { [admin.deviceId]: admin.publicKeyPem };
     const dev = generateDeviceKey('device-a');

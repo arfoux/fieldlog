@@ -1,6 +1,6 @@
 # chaos-kill drill
 
-Port of skill-2 (`chaos-kill`, status SOLID) to fielog. Real `SIGKILL`
+Port of skill-2 (`chaos-kill`, status SOLID) to fieldlog. Real `SIGKILL`
 at three points — write, seal, sync — then reopen, verify, continue.
 No mocks: a child process dies mid-operation and the parent proves
 the durable prefix survives.

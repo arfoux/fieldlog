@@ -1,6 +1,6 @@
 # install
 
-How to install fielog and its runtime requirements.
+How to install fieldlog and its runtime requirements.
 
 ## Requirements
 
@@ -11,9 +11,13 @@ How to install fielog and its runtime requirements.
 
 ## Install
 
-The `fielog` package is not published on the npm registry yet — `bun add fielog` /
-`npm i fielog` 404s today. Until then, use a repo checkout:
-the runtime needs nothing installed besides `bun` itself
+```sh
+npm i fieldlog
+# or
+bun add fieldlog
+```
+
+The runtime needs nothing installed besides `bun` itself
 (zero `dependencies`). `bun install` in the checkout is only needed for
 devDeps (`tsc` for `bun run build`).
 
@@ -29,7 +33,7 @@ state a later stage can pick up:
 
 ```sh
 bun run demo              # = demo/two-node.ts: UNSIGNED dev demo (fixed port 8091)
-bun bin/fielog.ts demo    # = bin/fielog.ts:cmdDemo: SIGNED demo (ephemeral port, minted keys + cap tokens)
+bun bin/fieldlog.ts demo    # = bin/fieldlog.ts:cmdDemo: SIGNED demo (ephemeral port, minted keys + cap tokens)
 ```
 
 Both seed 20 offline entries on device-01, sync two sides, and prove

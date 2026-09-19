@@ -8,7 +8,7 @@ import { snapshotLockPathFor } from '../src/retain.ts';
 
 describe('retain cross-process lock', () => {
   it('fails loud while the lock file is held, succeeds after release', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'fielog-retain-lock-'));
+    const dir = mkdtempSync(join(tmpdir(), 'fieldlog-retain-lock-'));
     const file = join(dir, 'ledger.db');
     const k = await createKernel({ file });
     try {

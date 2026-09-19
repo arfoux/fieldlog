@@ -102,4 +102,4 @@ names. Behavior is identical apart from names; no shims, no aliases.
   (re-measured after neutral corpus values; distribution unchanged).
   Same distribution as the pre-rename base; only the sha moves with the type strings.
 - `bun demo/two-node.ts` → exit 0, both sides match.
-- `bun bin/fielog.ts demo` → exit 0, totals agree.
+- `bun bin/fieldlog.ts demo` → exit 0, totals agree.
