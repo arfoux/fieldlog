@@ -1,6 +1,6 @@
 {
   "name": "fieldlog",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "description": "Fieldlog — write anywhere, resolve later. Offline-first append-log + SQLite read-model + sync.",
   "repository": { "type": "git", "url": "git+https://github.com/arfoux/fieldlog.git" },
   "type": "module",

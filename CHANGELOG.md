@@ -7,6 +7,11 @@ Untagged commits are folded into the next tag that shipped them.
 
 (No unreleased changes yet.)
 
+## v0.15.1 — github packages + rename
+
+- Publish: also ships `@arfoux/fieldlog` to GitHub Packages (npmjs `fieldlog` unchanged).
+- Rename: package/bin/docs `fielog` → `fieldlog`; old `fielog-truncate` markers still read.
+
 ## v0.15.0 — truncate guards, fail-closed gates, relay budgets
 
 - Retention: `truncate()` guarded by `guardSeal` — sweep stops at the acked/applied prefix, skips legally-held events, and never splits a tombstone hide/show pair; report names held events and pairs that blocked the rest.
