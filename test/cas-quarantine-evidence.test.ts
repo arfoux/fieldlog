@@ -30,7 +30,9 @@ describe('cas quarantine evidence', () => {
       assert.ok(!existsSync(sidecar), 'live quarantine sidecar must be retired');
 
       const qdir = join(dir, 'quarantine');
-      const archive = readdirSync(qdir).find((n) => n.startsWith(`${key}.retired-`));
+      const archive = readdirSync(qdir).find(
+        (n) => n.startsWith(`${key}.retired-`) && !n.endsWith('.reason.json'),
+      );
       const manifest = JSON.parse(readFileSync(join(dir, 'cas.json'), 'utf8')) as { quarantined: string[] };
       assert.ok(!manifest.quarantined.includes(key), 'manifest quarantine flag must be cleared');
       assert.ok(archive, `no archived sidecar in ${qdir}`);
