@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS records(
 export interface ReplayResult {
   /** Events durably applied by this call (idempotent replays excluded). */
   applied: number;
-  /** Poison events rolled back alone so the tail behind them still applied. */
+  /** Poison or semantic-conflict events rolled back alone so the tail applies. */
   skipped: number;
 }
 
@@ -601,9 +601,14 @@ export function openStore(path: string): EventStore {
           } catch {
             /* already rolled back */
           }
+          // Semantic conflicts from insertRaw are poison-class here: replay
+          // reports them via skipped so one bad historical event cannot abort
+          // catch-up. Operational SQL errors still rethrow below.
           const poison =
             err instanceof Error &&
-            (err.message.startsWith('tamper rejected:') || err.message.startsWith('entry rejected:'));
+            (err.message.startsWith('tamper rejected:') ||
+              err.message.startsWith('entry rejected:') ||
+              err.message.startsWith('swept id reused:'));
           if (!poison) throw err;
           skipped += 1;
         }
