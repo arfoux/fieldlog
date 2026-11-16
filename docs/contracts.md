@@ -9,33 +9,34 @@ not intent.
   the next run resumes from there (`applyPushAck`, `src/sync.ts:134-184`).
 - Pull: revoked events and re-drive apply failures are quarantined into
   `_quarantine` as evidence, the cursor still advances (`applyPullEvents`,
-  `src/sync.ts:395-503`; forgery gate `verifyPullAuth`,
+  `src/sync.ts:400-508`; forgery gate `verifyPullAuth`,
   `src/sync.ts:195-225`). Poison (invalid shape) and forged (bad signature)
   events are skipped WITHOUT quarantine evidence — silent-continue, cursor
-  still advances past them (`src/sync.ts:460-472`).
+  still advances past them (`src/sync.ts:418,460-472`).
 - Deltasync: shape-invalid UUIDs are recorded in meta `<cursorKey>.dead`
   and never re-fetched; the want-list still drains (`src/deltasync.ts:10-13`).
 
 ## 2. blind compensators: undo/resolve need no local target
 
 `kernel.undo` / `resolve` append compensation events without checking the
-target exists (`src/kernel.ts:210-218`). Convergence via fold, not local
+target exists (`src/kernel.ts:254-262`). Convergence via fold, not local
 presence: compensation arriving before its target parks in
 `records`/`conflicts` and revives when the target lands
-(`resolvePendingEntries`, `src/store.ts:269-320`).
+(`resolvePendingEntries`, `src/store.ts:303-354`).
 Pinned by `scripts/model-oracle.ts` + `docs/model-oracle.md`.
 
 ## 3. seal <= ack: truncate must never eat unsafe data
 
 The snapshot seal is clamped to the prefix that is stored AND acked before
-sweeping (`clampSealToStored`, `src/retain.ts:123-147`; used by the kernel at
-`src/kernel.ts:248-254`). A stale seal = no-op. Above that, `guardSeal`
-(`src/tombstone.ts:190-232`) holds legal-hold events and refuses to split
-hide/target pairs (clamp below BOTH seqs, fixpoint).
+sweeping (`clampSealToStored`, `src/retain.ts:155-179`; called by `guardSeal`
+at `src/tombstone.ts:270`, which the kernel invokes at `src/kernel.ts:299-304`).
+A stale seal = no-op. Above that, `guardSeal` (`src/tombstone.ts:264-306`)
+holds legal-hold events and refuses to split hide/target pairs (clamp below
+BOTH seqs, fixpoint).
 
 ## 4. device.explicit: reject split-brain, first explicit adoption allowed
 
-Meta `device.id` + `device.explicit` (`src/kernel.ts:108-126`): opening with
+Meta `device.id` + `device.explicit` (`src/kernel.ts:124-142`): opening with
 an explicit `deviceId` that differs from the stored explicit id → throws
 `ERR_DEVICE_MISMATCH`. The init-then-sync flow (file born without an id,
 then opened with the first explicit id) is adopted and marked explicit —
@@ -43,8 +44,8 @@ exactly once.
 
 ## 5. incremental purge: revoke sweep O(new), not O(log)
 
-`purgeRevoked` (`src/sync.ts:369-386`; cursor keys `sync.purge_seq` /
-`sync.purge_revoke_fp` at `src/sync.ts:335-336`) tracks the sweep cursor +
+`purgeRevoked` (`src/sync.ts:374-391`; cursor keys `sync.purge_seq` /
+`sync.purge_revoke_fp` at `src/sync.ts:340-341`) tracks the sweep cursor +
 revoke-signal fingerprint. Same revoke state =
 only new log lines are scanned; new revocation = full rescan.
 An `isRevoked` predicate without `revokeVersion` always rescans (opaque closure).

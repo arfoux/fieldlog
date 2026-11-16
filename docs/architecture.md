@@ -28,7 +28,7 @@ Slogan: write anywhere, resolve later.
 | retain | `retain.ts` | snapshot (`VACUUM INTO` + seal stamp) + truncate (new-file write + atomic rename) |
 | tombstone | `tombstone.ts` | soft-delete as compensation events + gc-guard + local partial legal-hold |
 | cas | `cas.ts` | content-addressed blob store (sha256 = key) for attachments |
-| quota | `quota.ts` | standalone byte-ceiling admission control (no kernel wiring) |
+| quota | `quota.ts` | byte-ceiling admission control; wired into `createKernel({ quotaLimitBytes })` and exposed via `kernel.quota()` (`openQuotaGuard` stays the lower-level API) |
 | hashchain | `hashchain.ts` | hash-chain / quarantine utils |
 | revokelog | `revokelog.ts` | convergent revocation log across relays and clients |
 

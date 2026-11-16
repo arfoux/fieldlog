@@ -1,6 +1,7 @@
 # kernel-api
 
-Kernel, log, and store API reference. Signatures match `src/` exactly.
+Kernel, log, and store API reference. Signatures match `src/` exactly,
+including the quota options and `health().skipped`.
 
 ## `createKernel(opts)` (`src/kernel.ts`)
 
@@ -10,6 +11,8 @@ interface KernelOpts {
   deviceId?: string;
   clock?: () => number;      // ts_device source (display only). Test skew seam
   maxPending?: number;       // outbox cap, default 50_000 (DEFAULT_OUTBOX_CAP)
+  quotaLimitBytes?: number;  // hard ceiling over [db, log], fail-closed per append
+  quotaEstimateBytes?: number; // per-append reserve (default: measured JSON bytes)
   privateKeyPem?: string;    // every local append is signed at the source
 }
 createKernel(opts: KernelOpts): Promise<Kernel>;
@@ -17,17 +20,17 @@ logPathFor(file: string): string; // 'ledger.db' -> 'ledger.log'
 
 > SINGLE WRITER, ONE PROCESS PER FILE. The kernel's append/truncate
 > mutex is a cooperative promise chain in one process only
-> (`serialize`, `src/kernel.ts:145-156`): two `createKernel` handles on
+> (`serialize`, `src/kernel.ts:177-186`): two `createKernel` handles on
 > the same `ledger.db`/`ledger.log` in one process share nothing unless
 > they share the handle, and two processes race last-write-wins on both
 > the JSONL log and the SQLite read-model. Open one kernel per file,
 > `close()` before reopening, never two writers. `hide()` callers must
 > likewise serialize behind the same lock — concurrent `hide()` calls
 > both pass the check and append duplicate hides (safe for the fold,
-> fatal for exactly-once callers; `src/tombstone.ts:114-118`). See
+> fatal for exactly-once callers; `src/tombstone.ts:101-112`). See
 > [limits-troubleshooting](limits-troubleshooting.md).
 
-## `Kernel` (`src/kernel.ts:60-83`)
+## `Kernel` (`src/kernel.ts:74-99`)
 
 | method | signature | guarantee |
 |---|---|---|
@@ -41,7 +44,8 @@ logPathFor(file: string): string; // 'ledger.db' -> 'ledger.log'
 | ackSeq | `ackSeq(): number` | local seq already acked by the relay |
 | serverTime | `serverTime(): number \| null` | latest authoritative `server_time` |
 | verifyLog | `verifyLog(): { ok, at?, reason?, gaps?, skipped: number }` | hash-chain verification; `skipped` always present (poison lines skipped on open-time replay) |
-| health | `health(): { events, quarantined, repairedTail, gaps }` | log health: corrupt lines, torn tail, gaps |
+| health | `health(): { events, quarantined, repairedTail, gaps, skipped }` | log health: corrupt lines, torn tail, gaps, plus poison lines skipped on open-time replay |
+| quota | `quota(): QuotaStatus \| null` | live `{ limit, used, reserved, remaining }`; null when `quotaLimitBytes` is unset |
 | snapshot | `snapshot(dest?: string): Promise<SnapshotInfo>` | full db copy + acked-prefix seal |
 | truncate | `truncate(): Promise<TruncateInfo>` | sweeps the sealed prefix; no-op when unsealed |
 | close | `close(): void` | closes the log fd + db |
@@ -65,7 +69,7 @@ interface AppendLog {
 Pure functions: `hashFor(e)`, `canonicalOf(e)` (key-sorted canonical form,
 `server_time` deliberately outside the hash), `GENESIS_HASH = 'GENESIS'`.
 
-## `EventStore` (`src/store.ts:155-172`)
+## `EventStore` (`src/store.ts:156-180`)
 
 ```ts
 interface EventStore {

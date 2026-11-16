@@ -9,7 +9,7 @@ Honest limits + ways out of common problems. No false promises.
   different processes on one `ledger.log` / `ledger.db` race
   last-write-wins on both files; two `createKernel` handles in one
   process share nothing (the append/truncate mutex is a cooperative
-  promise chain, `src/kernel.ts:145-156`). One kernel per file,
+  promise chain, `src/kernel.ts:177-186`). One kernel per file,
   `close()` before reopen. Same for [cas-store](cas-store.md) manifests.
 - Bounded outbox: default 50_000 unsynced events, past that `append`
   throws `ERR_OUTBOX_FULL` (`maxPending`, `src/kernel.ts`). Sync to
@@ -21,7 +21,9 @@ Honest limits + ways out of common problems. No false promises.
 - Hidden is not encryption: raw-SQL `kernel.query` still sees hidden rows;
   holds never sync to peers (see
   [tombstone-engine](tombstone-engine.md)).
-- `quota.ts` is standalone: no kernel wiring; callers reserve manually
+- Disk quota is enforced per append via `createKernel({ quotaLimitBytes })`;
+  `kernel.quota()` reports `{ limit, used, reserved, remaining }` (null when
+  unset). `openQuotaGuard` stays the lower-level manual reserve/release API
   (see [quota-guard](quota-guard.md)).
 - No `quotaLimitBytes` on `createKernel` = uncapped growth by design; boot logs one `WARN_UNCAPPED` ("set quotaLimitBytes") and stays silent once a quota is set.
 - `deltasync.ts` has no signature verification: only for trusted same-operator
@@ -41,7 +43,8 @@ Honest limits + ways out of common problems. No false promises.
 | `ERR_NOT_HIDDEN` (show) | the id is genuinely not hidden | nothing is written; check `hiddenIds` |
 | `serve needs --trust ...` (exit 2) | serve without a registry | add `--trust id=pub.pem` or `--unsigned` (dev) |
 | `relay rejected push/pull` | wrong token scope / revoked / unknown device | check token scope, expiry, the `--trust` registry, revocation status |
-| sync stuck on one event | poison/forgery — quarantined by design, cursor advances | check `_quarantine` via `listQuarantine`; the evidence data stays |
+| invalid-shape / forged pull event | skipped by design, cursor advances; no evidence by design | nothing to inspect — malformed or bad-signature events never enter the log or views (`src/sync.ts:418,460-472`) |
+| revoked / apply-failed pull or push event | quarantined into `_quarantine` as evidence, cursor advances | `listQuarantine` to inspect; the log line and `_events` row stay for forensics (`src/sync.ts:475-498`) |
 | `health().repairedTail = true` | kill mid-append; the torn tail is trimmed on open | normal; intact data = up to the last valid seq |
 | `health().gaps` non-empty | seqs re-anchored after quarantine lines | known gaps, not tampering (see [quarantine](quarantine.md)) |
 | port already in use | the old relay is still alive | `kill` the old process / another `--port`; double `start()` throws `relay already started` |
