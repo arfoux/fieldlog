@@ -13,7 +13,8 @@
     "bin",
     "README.md",
     "LICENSE",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "docs/*.md"
   ],
   "bin": {
     "fieldlog": "bin/fieldlog.js"

@@ -5,7 +5,11 @@ Untagged commits are folded into the next tag that shipped them.
 
 ## Unreleased
 
-(No unreleased changes yet.)
+- Docs only, no behavior change: `docs/decisions.md` is now in standard English
+  and distinguished from `docs/decision-log.md` in the README; both are linked
+  from their own entries. `src/index.ts` no longer carries a stale `v0.1`
+  header; `files` ships `docs/*.md` so README links resolve from the published
+  tarball.
 
 ## v0.15.1 — github packages + rename
 

@@ -1,40 +1,94 @@
-# fieldlog decisions — 5 keputusan lisan, kini tertulis
+# fieldlog design decisions — five standing calls
 
-Date: 2026-09-12. Bahan: `src/auth.ts`, `src/relay.ts`, `docs/contracts.md`.
-Tak ada keputusan lisan tersisa setelah berkas ini.
+Date: 2026-09-12. Sources: `src/auth.ts`, `src/relay.ts`, `docs/contracts.md`.
+No verbal decisions remain after this file.
 
-## 1. Epoch token: wont-fix, reissue = UUID baru
+This file records the calls that shape the design. For completed and dropped
+investigations, see [decision-log](decision-log.md).
 
-- Keputusan: `CapToken` tanpa field `epoch`. Revokasi membunuh satu id penuh. Reissue = mint UUID baru; sibling lama mati, sibling baru hidup.
-- Konteks: `CapToken` = `{ id, deviceId, scopes, issuedAt, expiresAt, notBefore?, signature? }` (`src/auth.ts:148-156`); mint pakai `randomUUID`, tanpa epoch (`src/auth.ts:168-183`); verify fail-closed untuk token tanpa id, `expiresAt <= issuedAt`, expiry, revokasi per id (`src/auth.ts:199-215`). Sisi revoke: `isRevoked(tokenId, tokenEpoch = 0)` (`src/revokelog.ts:267`), `isTokenRevoked(tokenId, tokenEpoch = 0)` (`src/relay.ts:257`); `CapToken` selalu epoch 0 karena tak ada fieldnya. Kebijakan tertulis: "`CapToken` ids are random UUIDs with no epoch, so any event for the id kills it" (`docs/revoke-handshake.md:44-48`).
-- Alternatif ditolak: tambah `epoch` ke canonical token. Duplikat mekanisme revoke-event epoch ke token, pecah canonical form + verify + migrasi, tanpa kebutuhan nyata.
-- Revisit iff: butuh rotasi id-stabil (reissue id sama, epoch naik, revoke lama hanya bunuh epoch lama). Syarat: bukti kebutuhan + rencana migrasi (token lama tanpa epoch fail-closed, re-mint). Sampai itu: UUID baru per reissue.
+## 1. Token epochs: wont-fix; reissue mints a new UUID
 
-## 2. `dist/`: out-of-scope, run kanonis via `src` + bun
+- Decision: `CapToken` has no `epoch` field. Revocation kills one full id.
+  Reissue mints a fresh UUID; the old sibling dies and the new sibling lives.
+- Context: `CapToken` = `{ id, deviceId, scopes, issuedAt, expiresAt, notBefore?, signature? }` (`src/auth.ts:148-156`); minting uses `randomUUID`, with no epoch (`src/auth.ts:168-183`); verification is fail-closed for a token with no id, `expiresAt <= issuedAt`, expiry, and per-id revocation (`src/auth.ts:199-215`). On the revoke side: `isRevoked(tokenId, tokenEpoch = 0)` (`src/revokelog.ts:267`), `isTokenRevoked(tokenId, tokenEpoch = 0)` (`src/relay.ts:257`); a `CapToken` is always epoch 0 because it has no such field. Written policy: "`CapToken` ids are random UUIDs with no epoch, so any event for the id kills it" (`docs/revoke-handshake.md:44-48`).
+- Rejected alternative: add `epoch` to the canonical token. That duplicates the revoke-event epoch mechanism into the token and splits the canonical form, verification, and migration — with no real need.
+- Revisit if: stable-id rotation becomes a requirement (same id on reissue, epoch increments, revoking an old epoch kills only that epoch). Requirements then: evidence of the need plus a migration plan (old epoch-less tokens fail closed and are re-minted). Until then: one new UUID per reissue.
 
-- Keputusan: `dist/` artefak build lokal. Jangan baca, edit, kutip, atau publish. Run kanonis = bun atas TS `src` langsung; `tsc` hanya verifikasi ketik/build.
-- Konteks: `tsconfig.json` (`outDir: dist`, `rootDir: src`); `.gitignore` daftar `dist/`; `package.json` (`main: src/index.ts`, `bin: ./bin/fieldlog.ts`, `files: [src, bin, README, LICENSE, CHANGELOG]` — tanpa `dist`); scripts kanonis `bun test`, `bun bench/bench-*.ts`, `bun demo/two-node.ts`, `build: tsc -p tsconfig.json`.
-- Alternatif ditolak: run via `node dist/*` sebagai acuan. Duplikat sumber kebenaran, basi setelah tiap edit `src`.
-- Revisit iff: publish butuh JS kompilasi. Maka ubah `files` + run kanonis eksplisit, bukan diam-diam.
+## 2. `dist/`: out of scope; canonical run is `src` + Bun
 
-## 3. Relay tanpa enkripsi; rahasia via WireGuard (runbook moltarc)
+- Decision: `dist/` is a local build artifact. Do not read, edit, cite, or
+  publish it. The canonical run is Bun over the TypeScript in `src` directly;
+  `tsc` is only a type/build check.
+- Context: `tsconfig.json` (`outDir: dist`, `rootDir: src`); `.gitignore`
+  lists `dist/`; `package.json` (`main: src/index.ts`,
+  `bin: ./bin/fieldlog.ts`, `files: [src, bin, README, LICENSE, CHANGELOG]` —
+  no `dist`); canonical scripts are `bun test`, `bun bench/bench-*.ts`,
+  `bun demo/two-node.ts`, `build: tsc -p tsconfig.json`.
+- Rejected alternative: use `node dist/*` as the reference run. That duplicates
+  the source of truth and goes stale after every `src` edit.
+- Revisit if: publishing requires compiled JS. Then change `files` and make the
+  canonical run explicit — not silently.
 
-- Keputusan: relay tetap ws polos (`Bun.serve`, tanpa TLS di kode). Auth beri integritas + autentikasi, bukan kerahasiaan. Antar site / lewat internet: bungkus TCP di WireGuard.
-- Konteks: relay "accept raw log, broadcast, store. No business logic", persist JSONL sebelum ack, live hanya hint (`src/relay.ts:1-5`); wire `push`/`pull` bawa `LogEvent` mentah + `CapToken` opsional (`src/relay.ts:57-62`); otorisasi = tombstone device → revokasi per id → signature → expiry → scope (`docs/capability-token.md:33-34`); bocor token = pemegang pakai penuh sampai expiry/revoke, tak terikat socket (`docs/capability-token.md:62-64`, `src/auth.ts:142-146`). Unsigned relay (registry kosong) = dev lokal saja; produksi fail-closed (`docs/auth.md:43-44`, `src/relay.ts:40-46`).
-- Runbook: `../../molt/docs/wireguard-p2p.md` — kenapa tanpa enkripsi di kode (HMAC/auth tanpa kerahasiaan), pasang 2 peer, rotasi PSK, `allowPeers`, port/firewall, verifikasi handshake gagal.
-- Alternatif ditolak: TLS di dalam `src/relay.ts`. Berat deploy untuk relay LAN; kerahasiaan antar site sudah dijawab tunnel.
-- Revisit iff: relay wajib ekspos internet tanpa tunnel. Maka TLS/WSS jadi syarat, bukan opsi.
+## 3. Plaintext relay; confidentiality via WireGuard (moltarc runbook)
 
-## 4. Claim: ephemeral, TTL default 15 mnt — milik moltarc, pointer saja
+- Decision: the relay stays plain WebSocket (`Bun.serve`, no TLS in code).
+  Authentication provides integrity and authentication, not confidentiality.
+  Across sites or over the internet, wrap the TCP connection in WireGuard.
+- Context: the relay "accept raw log, broadcast, store. No business logic",
+  persists JSONL before ack, and treats live delivery as a hint only
+  (`src/relay.ts:1-5`); `push`/`pull` frames carry a raw `LogEvent` plus an
+  optional `CapToken` (`src/relay.ts:57-62`); authorization is device tombstone
+  → per-id revocation → signature → expiry → scope
+  (`docs/capability-token.md:33-34`); a leaked token gives its holder full use
+  until expiry or revocation and is not bound to a socket
+  (`docs/capability-token.md:62-64`, `src/auth.ts:142-146`). An unsigned relay
+  (empty registry) is for local development only; production is fail-closed
+  (`docs/auth.md:43-44`, `src/relay.ts:40-46`).
+- Runbook: `../../molt/docs/wireguard-p2p.md` — why encryption is handled
+  outside the code (HMAC/auth without confidentiality), setting up two peers,
+  rotating the PSK, `allowPeers`, ports/firewall, and verifying that a wrong
+  PSK fails the handshake.
+- Rejected alternative: TLS inside `src/relay.ts`. Heavier deployment for a LAN
+  relay; confidentiality across sites is already answered by the tunnel.
+- Revisit if: the relay must be exposed to the internet without a tunnel. Then
+  TLS/WSS becomes a requirement, not an option.
 
-- Keputusan: fieldlog tanpa modul claim. Claim hidup di moltarc saja; fieldlog money-state selesai via resolve/sync-ack, bukan permit.
-- Konteks moltarc (pointer, bukan duplikat): `ClaimStore` eksplisit EPHEMERAL in-memory; restart tanpa snapshot `toJSON` + restore `fromJSON` = spent jadi spendable lagi (double-spend), tanpa auto-persist (`../../molt/src/claim.ts:4-10`, `../../molt/src/claim.ts:63-65`); `DEFAULT_TTL_MS` 15 mnt dengan rasional jendela (`../../molt/src/claim.ts:41-46`); argumen omitted → default, eksplisit `undefined`/`null` → never-expire, numerik → custom (`../../molt/src/claim.ts:48-53`); `use()` kedaluwarsa lapor `expired`, tak pernah ditandai spent (`../../molt/src/claim.ts:97-105`); kontrak kanonis `../../molt/docs/contracts.md` → Claim TTL. Paralel fieldlog: TTL token relay `GRANT_TTL_MS` 24 jam / `CAP_TOKEN_TTL_MS` 15 mnt (`src/auth.ts:68-69`, `docs/capability-token.md:38-46`) — itu capability relay, bukan claim.
-- Alternatif ditolak: claim engine kedua di fieldlog. Fork semantik expiry/persist/reconcile yang sudah ada di moltarc.
-- Revisit iff: fieldlog butuh single-spend permit offline. Maka impor dari moltarc, jangan fork.
+## 4. Claims: ephemeral, 15-minute default TTL — owned by moltarc; pointer only
 
-## 5. Bench tunggal bertanggal; kanonis CHANGELOG + honesty
+- Decision: fieldlog has no claim module. Claims live only in moltarc; fieldlog
+  money-state completes through resolve/sync-ack, not through a permit.
+- moltarc context (a pointer, not a duplicate): `ClaimStore` is explicitly
+  EPHEMERAL in memory; a restart without a `toJSON` snapshot and `fromJSON`
+  restore makes spent claims spendable again (double-spend) — there is no
+  automatic persistence (`../../molt/src/claim.ts:4-10`,
+  `../../molt/src/claim.ts:63-65`); `DEFAULT_TTL_MS` is 15 minutes with the
+  window rationale (`../../molt/src/claim.ts:41-46`); an omitted argument uses
+  the default, explicit `undefined`/`null` means never-expire, and a number sets
+  a custom window (`../../molt/src/claim.ts:48-53`); an expired `use()` reports
+  `expired` and is never marked spent (`../../molt/src/claim.ts:97-105`);
+  canonical contract in `../../molt/docs/contracts.md` → Claim TTL. The fieldlog
+  parallel: relay token TTLs `GRANT_TTL_MS` 24 hours / `CAP_TOKEN_TTL_MS`
+  15 minutes (`src/auth.ts:68-69`, `docs/capability-token.md:38-46`) — those are
+  relay capability tokens, not claims.
+- Rejected alternative: a second claim engine in fieldlog. That would fork the
+  expiry/persist/reconcile semantics already in moltarc.
+- Revisit if: fieldlog needs an offline single-spend permit. Then import from
+  moltarc — do not fork.
 
-- Keputusan: satu sumber angka = `docs/bench.md` bertanggal. Setiap angka hanya valid dengan pin slice + corpus + machine. `CHANGELOG.md` kanonis perubahan user-visible; `bench/honesty.md` + `scripts/bench-check.sh` gate kejujuran.
-- Konteks: `docs/bench.md` ("Measured 2026-09-12 … no estimates", seksi machine + method + results); honesty = slice (git HEAD) + corpus (bench file + N + params) + machine (os/arch/bun), mismatch → STOP, tak ada estimasi (`bench/honesty.md:1-28`); checker exit 0 PASS / 2 FAIL / 1 usage (`bench/honesty.md:30-49`); angka lintas hari tak comparable (`bench/honesty.md:76-80`); `CHANGELOG.md` pola Unreleased → tag order, untagged folded.
-- Alternatif ditolak: angka tersebar di chat/doc tanpa tanggal + pin. Tak bisa direproduksi = ditolak.
-- Revisit iff: tak ada — aturan pin permanen. Bench baru = tanggal + pin baru, bukan rata-rata lintas hari.
+## 5. One dated bench source; canonical CHANGELOG and honesty gate
+
+- Decision: the single source of numbers is the dated `docs/bench.md`. A number
+  is valid only with a pinned slice, corpus, and machine. `CHANGELOG.md` is the
+  canonical record of user-visible changes; `bench/honesty.md` plus
+  `scripts/bench-check.sh` enforce the honesty gate.
+- Context: `docs/bench.md` ("Measured 2026-09-12 … no estimates", with machine,
+  method, and results sections); honesty means slice (git HEAD) + corpus (bench
+  file, N, parameters) + machine (os/arch/bun), with a mismatch → STOP and no
+  estimates (`bench/honesty.md:1-28`); checker exits 0 PASS / 2 FAIL / 1 usage
+  (`bench/honesty.md:30-49`); numbers from different days are not comparable
+  (`bench/honesty.md:76-80`); `CHANGELOG.md` follows Unreleased → tag order,
+  with untagged changes folded in.
+- Rejected alternative: numbers scattered across chat and docs without a date
+  or pins. Not reproducible, therefore rejected.
+- Revisit if: never — the pinning rule is permanent. A new bench gets its own
+  date and pins, not an average across days.
