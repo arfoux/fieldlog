@@ -38,12 +38,16 @@ k.close();
 ## 2 devices: sync later via a local relay (dev, unsigned)
 
 ```js
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { createKernel, WsRelayServer, WsRelayClient } from 'fieldlog';
 
-const server = new WsRelayServer({ port: 8091, file: 'relay.log' });
+const dir = mkdtempSync(join(tmpdir(), 'fieldlog-quickstart-'));
+const server = new WsRelayServer({ port: 8091, file: join(dir, 'relay.log') });
 await server.start();
-const node1 = await createKernel({ file: 'device-01.db' });
-const node2 = await createKernel({ file: 'device-02.db' });
+const node1 = await createKernel({ file: join(dir, 'device-01.db') });
+const node2 = await createKernel({ file: join(dir, 'device-02.db') });
 await node1.append({ type: 'entry', value: 5000, actor: 'device-01' });
 const c1 = new WsRelayClient('ws://127.0.0.1:8091');
 const c2 = new WsRelayClient('ws://127.0.0.1:8091');

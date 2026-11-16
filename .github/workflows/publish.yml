@@ -63,6 +63,7 @@ jobs:
           npm publish --registry=https://npm.pkg.github.com --access public
           cp /tmp/package.json.bak package.json
   release:
+    needs: [publish, publish-gpr]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -77,7 +78,8 @@ jobs:
             in_sec { print }
           ' CHANGELOG.md | sed -e '/./,$!d' > /tmp/notes.md
           if [ ! -s /tmp/notes.md ]; then
-            echo "Release $TAG" > /tmp/notes.md
+            echo "::error::no CHANGELOG.md section for $TAG — refusing to publish generic release notes"
+            exit 1
           fi
       - name: Create GitHub release
         env:

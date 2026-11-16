@@ -23,7 +23,7 @@ set -o pipefail
 EXPECTED_PASS="${GATE_EXPECTED_PASS:-266}"
 MAIN_REF="${GATE_MAIN_REF:-main}"
 ALLOWS=(src/ test/ scripts/ docs/ .github/)
-DENY=(bun.lock bun.lockb package-lock.json yarn.lock dist/ node_modules/ .git/ '*.log' '*.tmp')
+DENY=(bun.lock bun.lockb package-lock.json yarn.lock 'dist/*' 'node_modules/*' '.git/*' '*.log' '*.tmp')
 
 while [ $# -gt 0 ]; do
   case "$1" in
