@@ -13,9 +13,13 @@ it — the guard never reports "space available" it cannot prove.
 Over-quota throws `ERR_QUOTA_EXCEEDED` carrying the measured numbers;
 bad inputs throw `ERR_QUOTA_INVALID`.
 
-Standalone module on purpose: no kernel wiring. The kernel keeps its
-own outbox cap (`ERR_OUTBOX_FULL`, `maxPending` in `src/kernel.ts`);
-this guard covers bytes-on-disk, a different axis.
+Wired into the kernel since v0.15: `createKernel({ quotaLimitBytes })` opens
+one guard over the `[db, log]` file pair, reserves each append's estimated
+bytes before writing (fail-closed `ERR_QUOTA_EXCEEDED` /
+`ERR_QUOTA_UNKNOWN`), and exposes a live snapshot via `kernel.quota()`.
+The kernel's outbox cap (`ERR_OUTBOX_FULL`, `maxPending` in `src/kernel.ts`)
+is a different axis. `openQuotaGuard` stays the lower-level API for callers
+that need direct reserve/release control (e.g. snapshot spools).
 
 ## Usage
 
@@ -30,6 +34,14 @@ try {
   g.release(4096);
 }
 g.check(); // throws ERR_QUOTA_EXCEEDED if files outgrew the ceiling
+```
+
+Kernel wiring (since v0.15):
+
+```ts
+const k = await createKernel({ file: 'ledger.db', quotaLimitBytes: 1_000_000 });
+await k.append({ type: 'entry', value: 1 }); // reserves estimate, throws ERR_QUOTA_* before writing
+k.quota(); // { limit, used, reserved, remaining }, or null when no limit was set
 ```
 
 | api | meaning |
@@ -56,9 +68,10 @@ rejected with nothing held.
 
 ## limits (by design)
 
-- No kernel wiring: `append`/`snapshot` do not call the guard; the
-  caller reserves explicitly. Scope of this port is `src/quota.ts` +
-  this doc + `test/quota.test.ts` only (`src/index.ts` untouched).
+- Pre-v0.15 history (base a80c1b9 = v0.14.16): the guard had no kernel
+  wiring — `append`/`snapshot` did not call it, callers reserved explicitly,
+  and scope was limited to `src/quota.ts`, this doc, and `test/quota.test.ts`
+  (`src/index.ts` untouched). Superseded in v0.15 by the kernel option above.
 - Reservations are in-memory: a restart drops held bytes (measured
   usage survives, it is re-statted from disk).
 - Full suite (`bun test`, 95 pass / 0 fail / 37 files at base) NOT

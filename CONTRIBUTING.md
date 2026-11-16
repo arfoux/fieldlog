@@ -4,7 +4,7 @@
 
 ```sh
 bun install
-bun test            # full suite (218 tests when this doc was written)
+bun test            # full suite (258 tests, pinned 2026-11-16 in docs/conformance-gate.md)
 bun run build       # typecheck via tsc -p tsconfig.json
 bun bin/fieldlog.ts demo   # end-to-end smoke: 2-node roundtrip
 ```

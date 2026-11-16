@@ -11,8 +11,8 @@
 // admission check (`reserve`, `check`, `remaining`) propagates it — the
 // guard never reports "space available" it cannot prove. Over-quota throws
 // ERR_QUOTA_EXCEEDED carrying the measured numbers. Bad inputs throw
-// ERR_QUOTA_INVALID. Standalone module: no kernel wiring (kernel keeps its
-// own ERR_OUTBOX_FULL outbox cap in src/kernel.ts).
+// ERR_QUOTA_INVALID. The kernel wires this guard via createKernel({
+// quotaLimitBytes }); its ERR_OUTBOX_FULL cap is a separate axis.
 import { statSync } from 'node:fs';
 
 export interface QuotaOpts {

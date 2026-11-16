@@ -22,7 +22,7 @@ The runtime needs nothing installed besides `bun` itself
 devDeps (`tsc` for `bun run build`).
 
 What ships on publish (`files` in `package.json`): `src`, `bin`,
-`README.md`, `LICENSE`, `CHANGELOG.md`.
+`README.md`, `LICENSE`, `CHANGELOG.md`, and `docs/*.md`.
 
 ## Try
 

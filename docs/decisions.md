@@ -21,8 +21,9 @@ investigations, see [decision-log](decision-log.md).
   `tsc` is only a type/build check.
 - Context: `tsconfig.json` (`outDir: dist`, `rootDir: src`); `.gitignore`
   lists `dist/`; `package.json` (`main: src/index.ts`,
-  `bin: ./bin/fieldlog.ts`, `files: [src, bin, README, LICENSE, CHANGELOG]` —
-  no `dist`); canonical scripts are `bun test`, `bun bench/bench-*.ts`,
+  `bin: bin/fieldlog.js` (npm shim spawning `bin/fieldlog.ts` under Bun),
+  `files: [src, bin, README, LICENSE, CHANGELOG, docs/*.md]` — no `dist`);
+  canonical scripts are `bun test`, `bun bench/bench-*.ts`,
   `bun demo/two-node.ts`, `build: tsc -p tsconfig.json`.
 - Rejected alternative: use `node dist/*` as the reference run. That duplicates
   the source of truth and goes stale after every `src` edit.
@@ -32,7 +33,7 @@ investigations, see [decision-log](decision-log.md).
 ## 3. Plaintext relay; confidentiality via WireGuard (moltarc runbook)
 
 - Decision: the relay stays plain WebSocket (`Bun.serve`, no TLS in code).
-  Authentication provides integrity and authentication, not confidentiality.
+  Authentication provides integrity and authenticity, not confidentiality.
   Across sites or over the internet, wrap the TCP connection in WireGuard.
 - Context: the relay "accept raw log, broadcast, store. No business logic",
   persists JSONL before ack, and treats live delivery as a hint only
@@ -44,10 +45,13 @@ investigations, see [decision-log](decision-log.md).
   (`docs/capability-token.md:62-64`, `src/auth.ts:142-146`). An unsigned relay
   (empty registry) is for local development only; production is fail-closed
   (`docs/auth.md:43-44`, `src/relay.ts:40-46`).
-- Runbook: `../../molt/docs/wireguard-p2p.md` — why encryption is handled
-  outside the code (HMAC/auth without confidentiality), setting up two peers,
-  rotating the PSK, `allowPeers`, ports/firewall, and verifying that a wrong
-  PSK fails the handshake.
+- Runbook: [moltarc WireGuard P2P](https://github.com/arfoux/moltarc/blob/main/docs/wireguard-p2p.md)
+  (old `../../molt/...` paths only resolve in a local sibling checkout).
+  Tunnel topology only: why encryption lives outside the code (HMAC/auth
+  without confidentiality), two peers, PSK rotation, ports/firewall, and
+  verifying a wrong PSK fails the handshake. Moltarc's `MOLTARC_PSK` and
+  `allowPeers` knobs configure its own relay — they do NOT apply to
+  fieldlog's `WsRelayServer`.
 - Rejected alternative: TLS inside `src/relay.ts`. Heavier deployment for a LAN
   relay; confidentiality across sites is already answered by the tunnel.
 - Revisit if: the relay must be exposed to the internet without a tunnel. Then
@@ -57,16 +61,17 @@ investigations, see [decision-log](decision-log.md).
 
 - Decision: fieldlog has no claim module. Claims live only in moltarc; fieldlog
   money-state completes through resolve/sync-ack, not through a permit.
-- moltarc context (a pointer, not a duplicate): `ClaimStore` is explicitly
+- moltarc context (a pointer, not a duplicate; `../../molt/...` = local
+  sibling checkout): `ClaimStore` is explicitly
   EPHEMERAL in memory; a restart without a `toJSON` snapshot and `fromJSON`
   restore makes spent claims spendable again (double-spend) — there is no
-  automatic persistence (`../../molt/src/claim.ts:4-10`,
-  `../../molt/src/claim.ts:63-65`); `DEFAULT_TTL_MS` is 15 minutes with the
-  window rationale (`../../molt/src/claim.ts:41-46`); an omitted argument uses
+  automatic persistence ([src/claim.ts:4-10](https://github.com/arfoux/moltarc/blob/main/src/claim.ts),
+  [src/claim.ts:63-65](https://github.com/arfoux/moltarc/blob/main/src/claim.ts)); `DEFAULT_TTL_MS` is 15 minutes with the
+  window rationale ([src/claim.ts:41-46](https://github.com/arfoux/moltarc/blob/main/src/claim.ts)); an omitted argument uses
   the default, explicit `undefined`/`null` means never-expire, and a number sets
-  a custom window (`../../molt/src/claim.ts:48-53`); an expired `use()` reports
-  `expired` and is never marked spent (`../../molt/src/claim.ts:97-105`);
-  canonical contract in `../../molt/docs/contracts.md` → Claim TTL. The fieldlog
+  a custom window ([src/claim.ts:48-53](https://github.com/arfoux/moltarc/blob/main/src/claim.ts)); an expired `use()` reports
+  `expired` and is never marked spent ([src/claim.ts:97-105](https://github.com/arfoux/moltarc/blob/main/src/claim.ts));
+  canonical contract in [docs/contracts.md](https://github.com/arfoux/moltarc/blob/main/docs/contracts.md) → Claim TTL. The fieldlog
   parallel: relay token TTLs `GRANT_TTL_MS` 24 hours / `CAP_TOKEN_TTL_MS`
   15 minutes (`src/auth.ts:68-69`, `docs/capability-token.md:38-46`) — those are
   relay capability tokens, not claims.

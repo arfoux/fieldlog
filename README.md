@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/gifs/logo.svg" alt="fieldlog logo — event log with verification stamp" width="128">
+  <img src="https://raw.githubusercontent.com/arfoux/fieldlog/main/docs/gifs/logo.svg" alt="fieldlog logo — event log with verification stamp" width="128">
 </p>
 
-# fieldlog — Fieldlog
+# fieldlog — write anywhere, resolve later
 
 Write anywhere, resolve later.
 
@@ -50,7 +50,7 @@ into queryable tables.
   the other (unsigned rows carry no signatures). Real ledger example:
   `example/ledger.mjs` (`bun example/ledger.mjs`)
 - Single writer, one process per file: the kernel mutex is cooperative
-  in-process only (`src/kernel.ts:145-156`). Details:
+  in-process only (`src/kernel.ts:177-186`). Details:
   [kernel-api](docs/kernel-api.md),
   [limits-troubleshooting](docs/limits-troubleshooting.md).
 
@@ -58,10 +58,10 @@ into queryable tables.
 
 | | |
 |---|---|
-| <img src="docs/gifs/part1-log.png" alt="Every append seals to the previous entry, forming a hash chain." width="480"><br>hash chain — every append seals to the previous entry | <img src="docs/gifs/part2-sync.png" alt="Delta sync sends only the diff, resuming from the last ack." width="480"><br>delta sync — only the diff flies, resuming from the last ack |
-| <img src="docs/gifs/part3-relay.png" alt="Offline devices exchange messages through the relay server." width="480"><br>relay — offline devices exchange messages via the server | <img src="docs/gifs/part4-retain.png" alt="Snapshot plus truncate trims the log without losing the trail." width="480"><br>snapshot+truncate — trim the log without losing the trail |
-| <img src="docs/gifs/part5-auth.png" alt="Signed capability tokens gate access, and revocation is ruthless." width="480"><br>capability+revoke — signed tokens, ruthless revocation | <img src="docs/gifs/part6-quarantine.png" alt="Corrupt entries are quarantined, never silently dropped." width="480"><br>quarantine — corrupt entries jailed, never silently dropped |
-| <img src="docs/gifs/part7-readmodel.png" alt="The SQLite read model is rebuilt from the append-only log." width="480"><br>read model — SQLite rebuilt from the log | <img src="docs/gifs/part8-tombstone.png" alt="Delete writes a tombstone, so history stays intact." width="480"><br>soft delete — delete = tombstone, history stays intact |
+| <img src="https://raw.githubusercontent.com/arfoux/fieldlog/main/docs/gifs/part1-log.png" alt="Every append seals to the previous entry, forming a hash chain." width="480"><br>hash chain — every append seals to the previous entry | <img src="https://raw.githubusercontent.com/arfoux/fieldlog/main/docs/gifs/part2-sync.png" alt="Delta sync sends only the diff, resuming from the last ack." width="480"><br>delta sync — only the diff flies, resuming from the last ack |
+| <img src="https://raw.githubusercontent.com/arfoux/fieldlog/main/docs/gifs/part3-relay.png" alt="Offline devices exchange messages through the relay server." width="480"><br>relay — offline devices exchange messages via the server | <img src="https://raw.githubusercontent.com/arfoux/fieldlog/main/docs/gifs/part4-retain.png" alt="Snapshot plus truncate trims the log without losing the trail." width="480"><br>snapshot+truncate — trim the log without losing the trail |
+| <img src="https://raw.githubusercontent.com/arfoux/fieldlog/main/docs/gifs/part5-auth.png" alt="Signed capability tokens gate access, and revocation is ruthless." width="480"><br>capability+revoke — signed tokens, ruthless revocation | <img src="https://raw.githubusercontent.com/arfoux/fieldlog/main/docs/gifs/part6-quarantine.png" alt="Corrupt entries are quarantined, never silently dropped." width="480"><br>quarantine — corrupt entries jailed, never silently dropped |
+| <img src="https://raw.githubusercontent.com/arfoux/fieldlog/main/docs/gifs/part7-readmodel.png" alt="The SQLite read model is rebuilt from the append-only log." width="480"><br>read model — SQLite rebuilt from the log | <img src="https://raw.githubusercontent.com/arfoux/fieldlog/main/docs/gifs/part8-tombstone.png" alt="Delete writes a tombstone, so history stays intact." width="480"><br>soft delete — delete = tombstone, history stays intact |
 
 ## Concepts & architecture
 
