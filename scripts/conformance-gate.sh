@@ -5,31 +5,36 @@
 #   1. base   — branch forked from the newest main tip (merge-base == main tip).
 #   2. tree   — working tree clean (no staged/unstaged/untracked changes).
 #   3. tests  — `bun test` reports at least EXPECTED_PASS passes and 0 failures (floor: never below last green total).
-#   4. scope  — every file changed in merge-base...HEAD is inside the allowlist.
+#   4. scope  — every changed file is under an allowed prefix and not generated.
 #
 # Usage:
-#   bash scripts/conformance-gate.sh [--expected-pass N] [--main-ref REF]
+#   bash scripts/conformance-gate.sh [--expected-pass N] [--main-ref REF] [--allow PATH]
 #
-# Env overrides: GATE_EXPECTED_PASS (default 258), GATE_MAIN_REF (default main).
+# Env overrides: GATE_EXPECTED_PASS (default 266), GATE_MAIN_REF (default main).
+# Default scope: repo-owned prefixes src/, test/, scripts/, docs/, .github/.
+# Pass --allow <path> for extra root files (package.json, README.md, ...).
 set -u
 set -o pipefail
 
-# Floor: EXPECTED_PASS pins the last green total (258 pass, 0 fail on main
-# 2026-09-13). Silent test shrinkage fails check 3 loud. Update only on
-# intentional add/remove: re-run `bun test`, read the "N pass" line, set the
-# default below to N.
-EXPECTED_PASS="${GATE_EXPECTED_PASS:-258}"
+# Floor: EXPECTED_PASS pins the last green total (266 pass, 0 fail on
+# repo/completion-sweep 2026-11-17). Silent test shrinkage fails check 3 loud.
+# Update only on intentional add/remove: re-run `bun test`, read the "N pass"
+# line, set the default below to N.
+EXPECTED_PASS="${GATE_EXPECTED_PASS:-266}"
 MAIN_REF="${GATE_MAIN_REF:-main}"
-ALLOWLIST="scripts/conformance-gate.sh docs/conformance-gate.md"
+ALLOWS=(src/ test/ scripts/ docs/ .github/)
+DENY=(bun.lock bun.lockb package-lock.json yarn.lock dist/ node_modules/ .git/ '*.log' '*.tmp')
 
 while [ $# -gt 0 ]; do
   case "$1" in
+    --allow=*) ALLOWS+=("${1#*=}") ;;
+    --allow) ALLOWS+=("${2:?--allow needs a path or prefix}"); shift ;;
     --expected-pass=*) EXPECTED_PASS="${1#*=}" ;;
     --expected-pass) EXPECTED_PASS="${2:?--expected-pass needs a value}"; shift ;;
     --main-ref=*) MAIN_REF="${1#*=}" ;;
     --main-ref) MAIN_REF="${2:?--main-ref needs a value}"; shift ;;
     -h|--help)
-      echo "usage: bash scripts/conformance-gate.sh [--expected-pass N] [--main-ref REF]"
+      echo "usage: bash scripts/conformance-gate.sh [--expected-pass N] [--main-ref REF] [--allow PATH]"
       exit 0 ;;
     *) echo "FAIL: args (unknown argument: $1)" >&2; exit 2 ;;
   esac
@@ -75,7 +80,7 @@ else
   report FAIL tests "bun test ${PASS_N}/${FAIL_N}, expected ${EXPECTED_PASS}/0"
 fi
 
-# 4. scope — changed files must stay inside the spin allowlist.
+# 4. scope — changed files must be repo-owned (or explicitly allowed).
 if [ -z "${BASE:-}" ]; then
   report FAIL scope "no base to diff against"
 else
@@ -83,18 +88,26 @@ else
   BAD=""
   for f in $CHANGED; do
     OK=0
-    for a in $ALLOWLIST; do
-      if [ "$f" = "$a" ]; then OK=1; break; fi
+    for a in "${ALLOWS[@]}"; do
+      case "$f" in
+        "$a"|"$a"*) OK=1 ;;
+      esac
+    done
+    for d in "${DENY[@]}"; do
+      case "$f" in
+        $d) OK=0 ; break ;;
+      esac
     done
     if [ "$OK" = "0" ]; then BAD="$BAD $f"; fi
   done
+  ALLOW_SUMMARY="${ALLOWS[*]}"
   if [ -z "$CHANGED" ]; then
-    report PASS scope "no files changed vs base; allowlist: $ALLOWLIST"
+    report PASS scope "no files changed vs base; allow prefixes: $ALLOW_SUMMARY"
   elif [ -z "$BAD" ]; then
     N="$(printf '%s\n' "$CHANGED" | wc -l)"
-    report PASS scope "$N file(s) inside allowlist"
+    report PASS scope "$N file(s) inside allow prefixes"
   else
-    report FAIL scope "out-of-scope:$BAD; allowlist: $ALLOWLIST"
+    report FAIL scope "out-of-scope:$BAD; allow prefixes: $ALLOW_SUMMARY"
   fi
 fi
 

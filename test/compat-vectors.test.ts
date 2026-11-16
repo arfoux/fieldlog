@@ -1,7 +1,7 @@
 // compat vectors (healthy set): cross-version read-write conformance over the
 // frozen v0.5 fixtures in test/fixtures/v0.5/. New kernel reads old logs
 // (read direction); old readers still verify new tails after stripping known-optional
-// fields (cross-write direction). See docs/compat-vectors.md.
+// fields (cross-write direction). See docs/internal/compat-vectors.md.
 import { describe, it, beforeAll, afterAll } from 'bun:test';
 import assert from 'node:assert/strict';
 import { copyFileSync, mkdtempSync, readFileSync } from 'node:fs';

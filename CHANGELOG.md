@@ -15,6 +15,12 @@ Untagged commits are folded into the next tag that shipped them.
   Quota wiring, pull-event quarantine, kernel signatures, source anchors, cross-repo links,
   Bun engine, and tag order corrected; no behavior or exported API change.
 
+- Security: an unreadable revocation sidecar now fails closed — revoke writes and all client operations are refused until an operator repairs it, instead of silently un-revoking every device on restart. Revocations are persisted atomically (tmp + fsync + rename).
+- Data correctness: `store.replay()` skips only intentional poison (`tamper rejected:` / `entry rejected:`); SQLite lock/IO/full and other operational errors now abort open instead of being counted as skips and hidden from every read model.
+- Reliability: snapshot lock/target unlink retries transient Windows EPERM/EBUSY with descriptive errors, and `_meta` stamping uses the live connection instead of a second database handle; re-putting a quarantined CAS key archives the old evidence sidecar instead of orphaning it.
+- CLI/tests: `--help`/`-h` prints to stdout and exits 0; added regression tests for revocation fail-closed, replay classification, CAS evidence, snapshot retry and contract gaps; timing tests use sentinels/configurable budgets and guaranteed cleanup.
+- CI/packaging/docs: added a network-free published-surface check to CI and both publish jobs; the tarball now ships root policy docs plus `demo/`, `example/`, and `bench/`; maintainer runbooks moved to `docs/internal/` and README links made absolute. The conformance gate now accepts explicit `--allow` paths instead of an impossible two-file allowlist.
+
 ## v0.15.1 — github packages + rename
 
 - Publish: also ships `@arfoux/fieldlog` to GitHub Packages (npmjs `fieldlog` unchanged).

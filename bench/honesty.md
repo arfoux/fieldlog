@@ -3,7 +3,7 @@
 Port of skill-7 (`bench-honesty`, status SOLID) to fieldlog.
 HEALTHY = slice + corpus + machine recorded; numbers without all three are rejected.
 A bench number is a claim; the three pins are the proof. Any pin
-mismatch -> STOP, do not quote the number (see `docs/mismatch-stop.md`).
+mismatch -> STOP, do not quote the number (see `docs/internal/mismatch-stop.md`).
 
 Related field skills: 46 (state dir via `$TEMP`, never hardcoded `/tmp`),
 37 (the script reports raw pins, the coordinator judges), 65

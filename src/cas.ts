@@ -52,6 +52,56 @@ function manifestPathFor(dir: string): string {
   return join(dir, 'cas.json');
 }
 
+const RETIRE_REASON = 're-put of a quarantined key: corrupt bytes preserved for forensics';
+
+/** A successful re-put must not erase the old hash-mismatch evidence. Move
+ * the sidecar to a unique archive name and record why it was retired; a
+ * failure here throws rather than silently losing the forensic record. */
+function retireQuarantineEvidence(dir: string, key: string): string | null {
+  const sidecar = casQuarantinePathFor(dir, key);
+  if (!existsSync(sidecar)) return null;
+  let bytes: Buffer | null = null;
+  try {
+    bytes = readFileSync(sidecar);
+  } catch {
+    /* unreadable sidecar is still evidence; record its size as unknown */
+  }
+  const stamp = `${Date.now()}-${process.pid}-${Math.random().toString(16).slice(2)}`;
+  const archive = `${sidecar}.retired-${stamp}`;
+  const reasonPath = `${archive}.reason.json`;
+  const record = {
+    key,
+    retiredAt: new Date().toISOString(),
+    reason: RETIRE_REASON,
+    observedHash: bytes === null ? null : casKeyFor(bytes),
+    size: bytes === null ? null : bytes.length,
+  };
+  const tmp = `${reasonPath}.tmp`;
+  let fd = -1;
+  try {
+    fd = openSync(tmp, 'wx');
+    writeSync(fd, JSON.stringify(record));
+    fsyncSync(fd);
+    closeSync(fd);
+    fd = -1;
+    renameSync(tmp, reasonPath);
+  } catch (err) {
+    if (fd !== -1) {
+      try { closeSync(fd); } catch { /* already closed */ }
+    }
+    try { unlinkSync(tmp); } catch { /* never created */ }
+    throw err;
+  }
+  try {
+    renameSync(sidecar, archive);
+  } catch (err) {
+    try { unlinkSync(reasonPath); } catch { /* best effort */ }
+    throw new Error(`cannot preserve quarantine evidence for ${key}: ${String(err)}`, { cause: err });
+  }
+  fsyncDir(dirname(sidecar));
+  return archive;
+}
+
 export interface CasStat {
   key: string;
   size: number;
@@ -187,6 +237,7 @@ export function openCas(dir: string): CasStore {
         }
       }
       refs[key] = (refs[key] ?? 0) + 1;
+      if (quarantined.has(key)) retireQuarantineEvidence(dir, key);
       quarantined.delete(key);
       persistManifest(dir, refs, quarantined);
       return key;

@@ -6,7 +6,7 @@ No mocks: a child process dies mid-operation and the parent proves
 the durable prefix survives.
 
 Skill-text note: the skill body is not present in this worktree
-(`grep -r SOLID` hits only `docs/watchdog.md`, the skill-24 port),
+(`grep -r SOLID` hits only `docs/internal/watchdog.md`, the skill-24 port),
 so the dispatch task block is the spec: SIGKILL at X (write, seal,
 sync) plus recovery proof (reopen + verify + continue). Minimal
 adaptation, no invented skill content.

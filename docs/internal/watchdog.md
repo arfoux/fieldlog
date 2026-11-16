@@ -57,33 +57,33 @@ or `open` (any other status). First match wins:
 | 3 | escalation, a task completed with `outcome != succeeded` | read failure report immediately |
 | 1 | usage/environment error (bad flags, `orca`/`bun` missing, state unreadable) | fix invocation, not the wave |
 
-## example session: wave-1 of run_881f9ef2d48a
+## example session: wave-1 of <run-id>
 
 Run created 2026-09-05T22:40:40Z, three read-only recon workers:
 
 | task | worker | completed_at |
 | --- | --- | --- |
-| `[moltarc-audit-pattern]` task_f2ab2d2f4b27 | term_... | 2026-09-05 22:46:12 |
-| `[spin-spec-decompose]` task_6594cf77f3f7 | term_... | 2026-09-05 22:46:19 |
-| `[fieldlog-baseline-map]` task_c933171ea8b6 | term_... | 2026-09-05 22:48:54 |
+| `[moltarc-audit-pattern]` task_<id-a> | term_... | 2026-09-05 22:46:12 |
+| `[spin-spec-decompose]` task_<id-b> | term_... | 2026-09-05 22:46:19 |
+| `[fieldlog-baseline-map]` task_<id-c> | term_... | 2026-09-05 22:48:54 |
 
 A supervisor with `--interval 60 --timeout 900` would log two quiet
 rounds, then on the third poll see 3/3 done and wake the coordinator:
 
 ```text
 [watchdog 22:44:01] round=1 watched=3 done=0 open=[...(dispatched)...] elapsed=0s - sleeping 60s
-[watchdog 22:47:05] round=2 watched=3 done=2 open=[task_c933171ea8b6(running)] elapsed=184s - sleeping 60s
+[watchdog 22:47:05] round=2 watched=3 done=2 open=[task_<id-c>(running)] elapsed=184s - sleeping 60s
 [watchdog 22:49:10] round=3 watched=3 done=3 elapsed=309s
-[watchdog 22:49:10] WAKE-COORDINATOR reason=worker_done run=run_881f9ef2d48a all=3/3
+[watchdog 22:49:10] WAKE-COORDINATOR reason=worker_done run=<run-id> all=3/3
 ```
 
 Replayed live on 2026-09-06 (single poll, same three ids):
 
 ```text
-$ sh scripts/watchdog.sh --run run_881f9ef2d48a \
-    --tasks task_c933171ea8b6,task_6594cf77f3f7,task_f2ab2d2f4b27 --once
+$ sh scripts/watchdog.sh --run <run-id> \
+    --tasks task_<id-c>,task_<id-b>,task_<id-a> --once
 [watchdog 06:09:16] round=1 watched=3 done=3 elapsed=2s
-[watchdog 06:09:17] WAKE-COORDINATOR reason=worker_done run=run_881f9ef2d48a all=3/3
+[watchdog 06:09:17] WAKE-COORDINATOR reason=worker_done run=<run-id> all=3/3
 exit=0
 ```
 
@@ -93,7 +93,7 @@ budget. That matches the skill-24 proof note ("evidence: one proof per wave").
 
 ## dry-run record (2026-09-06, fixtures from live state)
 
-Fixtures were cut from a real `task-list --run run_881f9ef2d48a --json`
+Fixtures were cut from a real `task-list --run <run-id> --json`
 capture (`$TEMP/wd-live.json`, 12 tasks) and fed via `--from-json`.
 No live run was touched.
 
@@ -110,8 +110,8 @@ B. timeout simulation, one open task with `--timeout 0` -> exit 2:
 
 ```text
 $ sh scripts/watchdog.sh --from-json $TEMP/wd-timeout.json --timeout 0 --interval 1
-[watchdog 06:09:10] round=1 watched=1 done=0 open=[task_8fd06ee3a695(ready)] elapsed=1s timeout=0s
-[watchdog 06:09:10] WAKE-COORDINATOR reason=timeout run=from-json open=[task_8fd06ee3a695(ready)]
+[watchdog 06:09:10] round=1 watched=1 done=0 open=[task_<id-d>(ready)] elapsed=1s timeout=0s
+[watchdog 06:09:10] WAKE-COORDINATOR reason=timeout run=from-json open=[task_<id-d>(ready)]
 exit=2
 ```
 

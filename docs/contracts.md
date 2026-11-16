@@ -23,7 +23,7 @@ target exists (`src/kernel.ts:254-262`). Convergence via fold, not local
 presence: compensation arriving before its target parks in
 `records`/`conflicts` and revives when the target lands
 (`resolvePendingEntries`, `src/store.ts:303-354`).
-Pinned by `scripts/model-oracle.ts` + `docs/model-oracle.md`.
+Pinned by `scripts/model-oracle.ts` + [model-oracle](https://github.com/arfoux/fieldlog/blob/main/docs/internal/model-oracle.md).
 
 ## 3. seal <= ack: truncate must never eat unsafe data
 

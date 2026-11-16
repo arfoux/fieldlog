@@ -12,8 +12,11 @@ import { fileURLToPath } from 'node:url';
 import { createKernel, type Kernel } from '../src/kernel.ts';
 import { MemoryRelay } from '../src/sync.ts';
 const here = dirname(fileURLToPath(import.meta.url));
-const MOLT = join(here, '..', '..', 'molt', 'src', 'seal.ts');
-const maybeIt = existsSync(MOLT) ? it : it.skip;
+const MOLT_DIR = join(here, '..', '..', 'molt', 'src');
+const SEAL = join(MOLT_DIR, 'seal.ts');
+const VERIFY = join(MOLT_DIR, 'verify.ts');
+const TIMETRAVEL = join(MOLT_DIR, 'timetravel.ts');
+const maybeIt = [SEAL, VERIFY, TIMETRAVEL].every(existsSync) ? it : it.skip;
 // Cross-repo API imports (moltarc). Dynamic import keeps the module
 // loadable when the sibling checkout is absent.
 

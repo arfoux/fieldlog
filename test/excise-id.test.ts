@@ -38,9 +38,7 @@ describe('excise-id: swept UUID reuse', () => {
     assert.equal(s.hasId('excise-1'), false);
     // Same UUID back at a fresh seq: must fail loud.
     assert.throws(() => s.apply(ev({ id: 'excise-1', seq: 3 })), /swept id reused/);
-    // And replay surfaces it as skipped, not a silent no-op.
-    const r = s.replay([ev({ id: 'excise-1', seq: 3 })]);
-    assert.equal(r.applied, 0);
-    assert.equal(r.skipped, 1);
+    // Replay uses the same rule: swept-id reuse is an operational error, not poison.
+    assert.throws(() => s.replay([ev({ id: 'excise-1', seq: 3 })]), /swept id reused/);
   });
 });

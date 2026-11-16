@@ -2,10 +2,10 @@
 
 ## Reporting
 
-Found a hole? Do not open a public issue yet. Send a description + repro
-steps to this repo's maintainer via DM/contact listed on the repo profile
-or the latest commit. There is no dedicated security address yet — contacting
-the maintainer directly is the official channel.
+Found a hole? Do not open a public issue yet. Preferred channel: the private
+advisory form at https://github.com/arfoux/fieldlog/security/advisories/new
+Fallback: send a description + repro steps to this repo's maintainer via
+DM/contact listed on the repo profile or the latest commit.
 
 Include: version (`package.json`), affected file/line, impact
 (what an attacker could do), and a minimal PoC if you have one.

@@ -3,7 +3,7 @@
 // Crash model: the server persists every stored event to a JSONL file BEFORE
 // acking, so kill+restart + client resume from the ack cursor is exact-once
 // by UUID. Live broadcast is a hint only — pull is the source of truth.
-import { existsSync, fsyncSync, mkdirSync, openSync, closeSync, readFileSync, statSync, writeSync, writeFileSync } from 'node:fs';
+import { existsSync, fsyncSync, mkdirSync, openSync, closeSync, readFileSync, renameSync, statSync, unlinkSync, writeSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { Server, ServerWebSocket } from 'bun';
 import type { LogEvent } from './log.js';
@@ -96,6 +96,9 @@ export class WsRelayServer {
   private logFd: number | null = null;
   private devices = new Map<string, string>(); // deviceId -> publicKeyPem
   private revoked = new Set<string>(); // deviceIds; tombstones broadcast + persisted
+  /** Set when the persisted tombstone sidecar cannot be parsed. Unknown
+   * tombstones must never be treated as "no revocations": fail closed. */
+  private revocationsUnreadable = false;
   /** Convergent authenticated revoke log (revokelog.ts); empty when no admin configured. */
   readonly revokes = new RevokeLog();
   private revokedDevices = new Set<string>(); // device-tombstone cache, valid while revokes.size is stable
@@ -167,10 +170,17 @@ export class WsRelayServer {
     const f = this.revokeFile();
     if (!f || !existsSync(f)) return;
     try {
-      const ids = JSON.parse(readFileSync(f, 'utf8')) as string[];
-      for (const id of ids) this.revoked.add(id);
-    } catch {
-      /* corrupt revoke sidecar: fail closed on listed ids only, keep serving */
+      const ids: unknown = JSON.parse(readFileSync(f, 'utf8'));
+      if (!Array.isArray(ids) || ids.some((id) => typeof id !== 'string')) {
+        throw new Error('revocation sidecar must contain an array of device ids');
+      }
+      for (const id of ids as string[]) this.revoked.add(id);
+    } catch (err) {
+      // We cannot know which devices were revoked. Loading zero tombstones
+      // would silently un-revoke them all, so mark the relay unusable for
+      // authorized operations until an operator repairs the sidecar.
+      this.revocationsUnreadable = true;
+      console.warn(`WARN_REVOCATIONS_UNREADABLE: '${f}': ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -179,7 +189,24 @@ export class WsRelayServer {
     if (!f) return;
     const dir = dirname(f);
     if (dir !== '' && dir !== '.') mkdirSync(dir, { recursive: true });
-    writeFileSync(f, JSON.stringify([...this.revoked].sort()));
+    // tmp + fsync + rename: a crash mid-write leaves the previous complete
+    // sidecar intact instead of a truncated JSON that un-revokes everything.
+    const tmp = `${f}.tmp-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    let fd = -1;
+    try {
+      fd = openSync(tmp, 'wx');
+      writeSync(fd, JSON.stringify([...this.revoked].sort()));
+      fsyncSync(fd);
+      closeSync(fd);
+      fd = -1;
+      renameSync(tmp, f);
+    } catch (err) {
+      if (fd !== -1) {
+        try { closeSync(fd); } catch { /* already closed */ }
+      }
+      try { unlinkSync(tmp); } catch { /* never created */ }
+      throw err;
+    }
   }
 
   /** Trust a device key. Enforcement turns on once at least one device is known. */
@@ -272,6 +299,9 @@ export class WsRelayServer {
 
   /** Revoke a device: future push/pull rejected, tombstone broadcast + persisted. */
   revokeDevice(deviceId: string): void {
+    if (this.revocationsUnreadable) {
+      throw new Error('refusing revokeDevice: revocation sidecar is unreadable; repair it before writing new tombstones');
+    }
     this.revoked.add(deviceId);
     this.persistRevocations();
     const msg = JSON.stringify({ op: 'revoked', deviceId } satisfies ToClient);
@@ -567,12 +597,15 @@ export class WsRelayServer {
     token: CapToken | undefined,
     scope: string,
   ): boolean {
-    if (!this.enforcing) return true;
     const fail = (message: string): boolean => {
       this.rejectsReceived += 1;
       this.send(ws, { op: 'error', req, code: 'forbidden', message });
       return false;
     };
+    if (this.revocationsUnreadable) {
+      return fail('revocation sidecar unreadable: refusing all operations until it is repaired');
+    }
+    if (!this.enforcing) return true;
     if (!token) return fail('missing capability token');
     if (this.revoked.has(token.deviceId)) return fail(`device revoked: ${token.deviceId}`);
     if (this.revokes.size > 0) {

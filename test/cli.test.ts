@@ -45,13 +45,25 @@ async function waitPort(proc: ReturnType<typeof Bun.spawn>, ms = 15000): Promise
 async function runOnce(args: string[], ms = 30000): Promise<{ code: number; out: string; err: string }> {
   const proc = Bun.spawn([BUN, CLI, ...args], { stdout: 'pipe', stderr: 'pipe' });
   procs.push(proc);
-  const [out, err, code] = await Promise.all([
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text(),
-    proc.exited,
-  ]);
-  void ms;
-  return { code, out, err };
+  // Integration watchdog: a hung child needs a real platform-clock kill;
+  // fake timers cannot bound an OS process that never writes or exits.
+  const timer = setTimeout(() => {
+    try {
+      proc.kill(9);
+    } catch {
+      /* already dead */
+    }
+  }, ms);
+  try {
+    const [out, err, code] = await Promise.all([
+      new Response(proc.stdout).text(),
+      new Response(proc.stderr).text(),
+      proc.exited,
+    ]);
+    return { code, out, err };
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 describe('cli', () => {
@@ -119,4 +131,27 @@ describe('cli', () => {
     assert.ok(Number(m[1]) > 0);
     assert.match(r.out, /match on both sides, totals agree/);
   }, 60_000);
+
+  it('help prints usage on stdout and exits 0', async () => {
+    const top = await runOnce(['--help']);
+    assert.equal(top.code, 0, `top-level help failed: ${top.err}`);
+    assert.equal(top.err, '');
+    assert.match(top.out, /usage: fieldlog <serve\|sync\|demo>/);
+
+    const short = await runOnce(['-h']);
+    assert.equal(short.code, 0);
+    assert.match(short.out, /usage: fieldlog <serve\|sync\|demo>/);
+
+    for (const [sub, pattern] of [
+      ['serve', /serve options:/],
+      ['sync', /sync options:/],
+      ['demo', /takes no options/],
+    ] as const) {
+      const r = await runOnce([sub, '--help']);
+      assert.equal(r.code, 0, `${sub} --help failed: ${r.err}`);
+      assert.equal(r.err, '');
+      assert.match(r.out, /usage: fieldlog <serve\|sync\|demo>/);
+      assert.match(r.out, pattern);
+    }
+  });
 });

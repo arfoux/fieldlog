@@ -35,7 +35,7 @@ not debt.
 - src/store.ts:50-82 — EntryState (DRAFT, RECORDED, RESOLVED_ONLINE,
   FAILED, EXPIRED) + checkAppend rejects any entry state besides DRAFT /
   RECORDED while offline.
-- src/kernel.ts:67-68 — `resolve(eventId, outcome, actor)`: 'resolved'
+- src/kernel.ts:82 — `resolve(eventId, outcome, actor)`: 'resolved'
   needs an online ack; failed/expired are recorded locally.
 
 ## Written assumptions
@@ -92,7 +92,8 @@ names. Behavior is identical apart from names; no shims, no aliases.
   manifest keys (`add` / `remove`) and `ITEMS` unchanged.
 - `scripts/model-oracle.ts:47-50` — `checkOracle` reads `tally` /
   `tally_moves`; oracle method names (`add` / `remove`) unchanged.
-- `docs/corpus-generator.md`, `docs/model-oracle.md` — op tables lead with
+- [corpus-generator](https://github.com/arfoux/fieldlog/blob/main/docs/internal/corpus-generator.md),
+  [model-oracle](https://github.com/arfoux/fieldlog/blob/main/docs/internal/model-oracle.md) — op tables lead with
   `tally.add` / `tally.remove`; run-evidence blocks labeled pre-rename.
 - `model-fuzz-report.md` — annotated with the rename, body verbatim.
 

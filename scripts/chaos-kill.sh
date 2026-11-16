@@ -15,7 +15,14 @@ set -eu
 
 command -v bun >/dev/null 2>&1 || { echo "[chaos-kill] bun not on PATH" >&2; exit 2; }
 
-OUT="$(bun test test/chaos-kill.test.ts test/kill9.test.ts 2>&1)"; ST=$?
-printf '%s\n' "$OUT" | tail -5
+set +e
+OUT="$(bun test test/chaos-kill.test.ts test/kill9.test.ts 2>&1)"
+ST=$?
+set -e
+if [ "$ST" -ne 0 ]; then
+  printf '%s\n' "$OUT"
+else
+  printf '%s\n' "$OUT" | tail -5
+fi
 printf '[chaos-kill] exit=%s\n' "$ST"
 exit "$ST"

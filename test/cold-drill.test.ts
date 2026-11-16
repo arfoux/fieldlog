@@ -1,10 +1,10 @@
-// Cold-drill (adapted): delete everything except the primary log, then rise
-// from the log alone. fieldlog has no cold tier (wave-1 fact), so the drill
-// keeps only ledger.log, removes the sqlite read-model + snapshots, and
-// proves replay + verify rebuild identical state. Real files, no mocks.
+// Cold-drill (adapted): rise from the primary log alone in a fresh directory.
+// fieldlog has no cold tier (wave-1 fact), so the drill copies only ledger.log
+// into a private temp dir and rebuilds the sqlite read-model there; no live
+// database handles are ever deleted (Windows releases them asynchronously).
 import { describe, it } from 'bun:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { copyFileSync, mkdtempSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createKernel } from '../src/kernel.ts';
@@ -13,7 +13,7 @@ const N = 30;
 const value = (i: number): number => 1000 + i;
 
 describe('cold-drill from primary log only', () => {
-  it('rebuilds identical state after deleting everything but ledger.log', async () => {
+  it('rebuilds identical state from a copied ledger.log in a fresh dir', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'fieldlog-cold-drill-'));
     const file = join(dir, 'ledger.db');
     const logPath = join(dir, 'ledger.log');
@@ -35,39 +35,19 @@ describe('cold-drill from primary log only', () => {
       seed.close();
     }
 
-    // Setup: delete everything EXCEPT the primary log.
-    // Integration exception (timer rule): windows releases the sqlite handle
-    // briefly after close — a real wait on the platform clock, impossible
-    // to control with a fake timer.
-    const sleep = (ms: number): Promise<void> => {
-      const { promise, resolve } = Promise.withResolvers<void>();
-      setTimeout(resolve, ms);
-      return promise;
-    };
-    for (const f of readdirSync(dir)) {
-      if (f === 'ledger.log') continue;
-      const target = join(dir, f);
-      let lastErr: unknown = null;
-      for (let attempt = 0; attempt < 50; attempt++) {
-        try {
-          rmSync(target, { recursive: true, force: true });
-          lastErr = null;
-          break;
-        } catch (e) {
-          lastErr = e;
-          await sleep(100);
-        }
-      }
-      if (lastErr) throw lastErr;
-    }
-    assert.deepEqual(readdirSync(dir), ['ledger.log']);
+    // Copy only the primary log into a fresh dir; the risen kernel creates
+    // its own db there. No retries, sleeps, or handle-release guessing.
+    const risenDir = mkdtempSync(join(tmpdir(), 'fieldlog-cold-drill-risen-'));
+    const risenLog = join(risenDir, 'ledger.log');
+    copyFileSync(logPath, risenLog);
+    assert.deepEqual(readdirSync(risenDir), ['ledger.log']);
     assert.equal(
-      readFileSync(logPath, 'utf8').split('\n').filter((l) => l.trim()).length,
+      readFileSync(risenLog, 'utf8').split('\n').filter((l) => l.trim()).length,
       N,
     );
 
     // Rise from the log alone: replay + verify.
-    const risen = await createKernel({ file, deviceId: 'cold-drill-test' });
+    const risen = await createKernel({ file: join(risenDir, 'ledger.db'), deviceId: 'cold-drill-test' });
     try {
       assert.equal(risen.health().events, N);
       const v = risen.verifyLog();

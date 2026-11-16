@@ -21,12 +21,14 @@ The runtime needs nothing installed besides `bun` itself
 (zero `dependencies`). `bun install` in the checkout is only needed for
 devDeps (`tsc` for `bun run build`).
 
-What ships on publish (`files` in `package.json`): `src`, `bin`,
-`README.md`, `LICENSE`, `CHANGELOG.md`, and `docs/*.md`.
+What ships on publish (`files` in `package.json`): `src`, `bin`, `demo`,
+`example`, `bench`, `README.md`, `LICENSE`, `CHANGELOG.md`, `CONTRIBUTING.md`,
+`SECURITY.md`, `CODE_OF_CONDUCT.md`, and `docs/*.md`. Maintainer runbooks live
+in `docs/internal/` and are not shipped.
 
 ## Try
 
-From a repo checkout:
+From a repo checkout or an unpacked package tarball:
 
 Two different demos — same totals, disjoint auth regimes, neither leaves
 state a later stage can pick up:
