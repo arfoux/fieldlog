@@ -4,7 +4,7 @@ Delta push/pull per `seq` with ack cursors (`src/sync.ts`), plus
 manifest-first sync between replicas (`src/deltasync.ts`, details
 [delta-sync](delta-sync.md)).
 
-## `Relay` + results (`src/sync.ts:8-16,506-543`)
+## `Relay` + results (`src/sync.ts:13-16,511-548`)
 
 ```ts
 interface Relay {
@@ -18,7 +18,7 @@ interface PullResult { pulled: number; applied: number; quarantined: number }
 | function | signature | guarantee |
 |---|---|---|
 | `pushPending` | `(log, store, relay, opts?): Promise<PushResult>` | pushes `seq > ack cursor` per chunk; cursor persists per chunk; halts on partial ack, resumes next run |
-| `pullRemote` | `(log, store, relay, deviceId, opts?): Promise<PullResult>` | pulls, applies idempotently per UUID under the new local seq; forged/poison/co-revoked events enter quarantine, cursor still advances; retroactive revoke sweep on signal |
+| `pullRemote` | `(log, store, relay, deviceId, opts?): Promise<PullResult>` | pulls, applies idempotently per UUID under the new local seq; revoked events are quarantined into `_quarantine`, while poison (invalid shape) and forged (bad signature) events are skipped WITHOUT quarantine evidence; cursor still advances; retroactive revoke sweep on signal |
 | `syncKernel` | `(log, store, relay, deviceId, opts?): Promise<PushResult & PullResult>` | push then pull |
 | `syncWithFailover` | `(log, store, relays, deviceId, opts?, state?): Promise<FailoverResult>` | tries relays in list order per chunk, sticks to the first healthy one; failure = backoff cooldown + re-probe; list order decides fail-back |
 | `withBackoff` | `(fn, opts?): Promise<T>` | exponential-backoff retry; stops on permanent errors (`isPermanentSyncError`: forbidden / bad cursor / capability / revok / unknown device / unauthorized) |
@@ -63,8 +63,8 @@ trusted same-operator replica; pulls with a forgery registry still go through
 > and an auth downgrade. Three cursor namespaces never transfer
 > progress: `sync.ack_seq` / shared `sync.pull_cursor` (single-relay
 > pull, `src/sync.ts:53-55`) vs per-relay `sync.pull_cursor.r<i>`
-> (failover, `src/sync.ts:734-735`) vs deltasync `<cursorKey>.want`
-> (default `deltasync.want`, `src/deltasync.ts:232,248`). Worse,
+> (failover, `src/sync.ts:739-740`) vs deltasync `<cursorKey>.want`
+> (default `deltasync.want`, `src/deltasync.ts:123-124,236`). Worse,
 > deltasync strips origin auth by design — receiver mints fresh local
 > `seq`/`hash` and drops `signature`/`countersignatures`
 > (`src/deltasync.ts`, see [delta-sync](delta-sync.md)) — so rows that

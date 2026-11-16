@@ -19,7 +19,7 @@ away from contributing.
 ## Enforcement
 
 Solo/small-team repo: the maintainer handles reports directly.
-Report via maintainer contact (see [SECURITY](SECURITY.md)).
+Report via the private advisory link or maintainer contact (see [SECURITY](SECURITY.md)).
 Proportional consequences: warning → comment/PR removal → temporary/permanent
 repo ban.
 

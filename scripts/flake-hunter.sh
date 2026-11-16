@@ -85,9 +85,7 @@ esac
 
 TMPD="${TMPDIR:-${TEMP:-${TMP:-/tmp}}}"
 [ -d "$TMPD" ] || { echo "[flake-hunter] state dir missing: $TMPD" >&2; exit 1; }
-STAMP="$(date -u '+%Y%m%d-%H%M%S')"
-LOGDIR="$TMPD/flake-hunter-$STAMP"
-mkdir -p "$LOGDIR" || { echo "[flake-hunter] cannot create $LOGDIR" >&2; exit 1; }
+LOGDIR="$(mktemp -d "${TMPD%/}/flake-hunter-XXXXXX")" || { echo "[flake-hunter] cannot create log dir under $TMPD" >&2; exit 1; }
 
 pass=0
 env_n=0

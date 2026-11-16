@@ -11,9 +11,15 @@
   "files": [
     "src",
     "bin",
+    "demo",
+    "example",
+    "bench",
     "README.md",
     "LICENSE",
     "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "CODE_OF_CONDUCT.md",
     "docs/*.md"
   ],
   "bin": {
@@ -21,6 +27,7 @@
   },
   "scripts": {
     "test": "bun test",
+    "check:surface": "node scripts/check-published-surface.mjs",
     "build": "tsc -p tsconfig.json",
     "demo": "bun demo/two-node.ts",
     "bench:append": "bun bench/bench-append.ts",

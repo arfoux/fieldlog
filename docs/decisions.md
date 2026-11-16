@@ -61,17 +61,17 @@ investigations, see [decision-log](decision-log.md).
 
 - Decision: fieldlog has no claim module. Claims live only in moltarc; fieldlog
   money-state completes through resolve/sync-ack, not through a permit.
-- moltarc context (a pointer, not a duplicate; `../../molt/...` = local
-  sibling checkout): `ClaimStore` is explicitly
+- moltarc context (a pointer, not a duplicate): `ClaimStore` is explicitly
   EPHEMERAL in memory; a restart without a `toJSON` snapshot and `fromJSON`
   restore makes spent claims spendable again (double-spend) — there is no
-  automatic persistence ([src/claim.ts:4-10](https://github.com/arfoux/moltarc/blob/main/src/claim.ts),
-  [src/claim.ts:63-65](https://github.com/arfoux/moltarc/blob/main/src/claim.ts)); `DEFAULT_TTL_MS` is 15 minutes with the
-  window rationale ([src/claim.ts:41-46](https://github.com/arfoux/moltarc/blob/main/src/claim.ts)); an omitted argument uses
+  automatic persistence ([src/claim.ts:4-11](https://github.com/arfoux/moltarc/blob/main/src/claim.ts#L4-L11),
+  [src/claim.ts:64-66](https://github.com/arfoux/moltarc/blob/main/src/claim.ts#L64-L66)); `DEFAULT_TTL_MS` is 15 minutes with the
+  window rationale ([src/claim.ts:42-47](https://github.com/arfoux/moltarc/blob/main/src/claim.ts#L42-L47)); an omitted argument uses
   the default, explicit `undefined`/`null` means never-expire, and a number sets
-  a custom window ([src/claim.ts:48-53](https://github.com/arfoux/moltarc/blob/main/src/claim.ts)); an expired `use()` reports
-  `expired` and is never marked spent ([src/claim.ts:97-105](https://github.com/arfoux/moltarc/blob/main/src/claim.ts));
-  canonical contract in [docs/contracts.md](https://github.com/arfoux/moltarc/blob/main/docs/contracts.md) → Claim TTL. The fieldlog
+  a custom window ([src/claim.ts:49-62](https://github.com/arfoux/moltarc/blob/main/src/claim.ts#L49-L62)); an expired `use()` reports
+  `expired` and is never marked spent ([src/claim.ts:98-105](https://github.com/arfoux/moltarc/blob/main/src/claim.ts#L98-L105));
+  Moltarc claim ids are `t-<20-hex>`; legacy 12-hex ids still resolve.
+  Canonical contract in [docs/contracts.md](https://github.com/arfoux/moltarc/blob/main/docs/contracts.md) → Claim TTL. The fieldlog
   parallel: relay token TTLs `GRANT_TTL_MS` 24 hours / `CAP_TOKEN_TTL_MS`
   15 minutes (`src/auth.ts:68-69`, `docs/capability-token.md:38-46`) — those are
   relay capability tokens, not claims.

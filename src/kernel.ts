@@ -78,7 +78,7 @@ export interface Kernel {
   append(args: AppendArgs): Promise<LogEvent>;
   query<T = Record<string, unknown>>(sql: string, params?: SqlParams): Promise<T[]>;
   undo(eventId: string, actor?: string): Promise<LogEvent>;
-  /** Resolve an IOU: 'resolved' needs online ack; failed/expired record locally. */
+  /** Resolve an entry: 'resolved' needs online ack; failed/expired record locally. */
   resolve(eventId: string, outcome: 'resolved' | 'failed' | 'expired', actor?: string): Promise<LogEvent>;
   /** Sync via one relay, or fail over across a list in order (sticks to first healthy). */
   sync(relay: Relay | Relay[], opts?: SyncOpts): Promise<PushResult & PullResult & { pushRelay?: number; pullRelay?: number }>;

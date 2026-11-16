@@ -12,7 +12,6 @@ import {
   writeSync,
 } from 'node:fs';
 import { dirname } from 'node:path';
-import { Database } from 'bun:sqlite';
 import { isMarker } from './log.js';
 import type { EventStore } from './store.js';
 
@@ -67,6 +66,37 @@ function failSnapshotInFlight(dbPath: string): never {
   );
 }
 
+/** Windows keeps a just-closed file handle busy briefly. Retry EPERM/EBUSY
+ * with a short backoff; never swallow a real failure (a stale snapshot target
+ * makes VACUUM INTO fail, a stale lock bricks every later snapshot). */
+export function unlinkWithRetry(
+  path: string,
+  label: string,
+  unlink: (target: string) => void = unlinkSync,
+  sleep?: (ms: number) => void,
+): void {
+  let last: unknown = null;
+  for (let attempt = 0; attempt < 8; attempt++) {
+    try {
+      unlink(path);
+      return;
+    } catch (err) {
+      const code = (err as NodeJS.ErrnoException)?.code;
+      if (code === 'ENOENT') return; // already gone: success
+      last = err;
+      if (code !== 'EPERM' && code !== 'EBUSY' && code !== 'EACCES') {
+        throw new Error(`cannot remove ${label} '${path}': ${String(err)}`, { cause: err });
+      }
+      if (attempt < 7) {
+        const ms = 25 * (attempt + 1);
+        if (sleep) sleep(ms);
+        else Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+      }
+    }
+  }
+  throw new Error(`cannot remove ${label} '${path}' after 8 attempts: ${String(last)}`, { cause: last });
+}
+
  /** Online full copy (VACUUM INTO) + seal stamp in both snapshot and live meta. */
  export function takeSnapshot(
    store: EventStore,
@@ -85,11 +115,7 @@ function failSnapshotInFlight(dbPath: string): never {
    snapshotsInFlight.add(dbPath);
    try {
     const snapshot = dest ?? snapshotPathFor(dbPath);
-    try {
-      unlinkSync(snapshot); // VACUUM INTO refuses an existing target
-    } catch {
-      /* fresh path */
-    }
+    unlinkWithRetry(snapshot, 'snapshot target'); // VACUUM INTO refuses an existing target
     store.exec(`VACUUM INTO '${snapshot.replace(/'/g, "''")}'`);
     // Checkpoint BEFORE stamping: capture the observed read-model tip first,
     // so every stamp below describes the same state the copy was taken from.
@@ -97,29 +123,22 @@ function failSnapshotInFlight(dbPath: string): never {
     // above the copy — never below — so the seal stays conservative.
     const rows = store.query<{ m: number | null }>(`SELECT MAX(seq) AS m FROM _events`);
     const dbSeq: number = rows[0]?.m ?? 0;
-    const db = new Database(snapshot);
+    // Stamp through the live connection (ATTACH) instead of opening a second
+    // Database handle: Windows can refuse to reopen a file still held by
+    // VACUUM INTO, and one connection keeps the lock semantics unambiguous.
+    const quoted = snapshot.replace(/'/g, "''");
+    store.exec(`ATTACH DATABASE '${quoted}' AS __fl_snapshot`);
     try {
-      db.exec('BEGIN IMMEDIATE');
-      try {
-        db.exec(
-          `INSERT INTO _meta(k,v) VALUES('snapshot.sealed_seq','${sealedSeq}') ` +
-            `ON CONFLICT(k) DO UPDATE SET v=excluded.v`,
-        );
-        db.exec(
-          `INSERT INTO _meta(k,v) VALUES('snapshot.at','${Date.now()}') ` +
-            `ON CONFLICT(k) DO UPDATE SET v=excluded.v`,
-        );
-        db.exec('COMMIT');
-      } catch (err) {
-        try {
-          db.exec('ROLLBACK');
-        } catch {
-          /* already torn down — report the original failure */
-        }
-        throw err;
-      }
+      store.exec(
+        `INSERT INTO __fl_snapshot._meta(k,v) VALUES('snapshot.sealed_seq','${sealedSeq}') ` +
+          `ON CONFLICT(k) DO UPDATE SET v=excluded.v`,
+      );
+      store.exec(
+        `INSERT INTO __fl_snapshot._meta(k,v) VALUES('snapshot.at','${Date.now()}') ` +
+          `ON CONFLICT(k) DO UPDATE SET v=excluded.v`,
+      );
     } finally {
-      db.close();
+      store.exec('DETACH DATABASE __fl_snapshot');
     }
     // Both live stamps in one transaction: a crash must never leave
     // snapshot.path pointing at a copy whose seal differs from
@@ -141,7 +160,7 @@ function failSnapshotInFlight(dbPath: string): never {
   } finally {
     snapshotsInFlight.delete(dbPath);
     try { closeSync(lockFd); } catch { /* already closed */ }
-    try { unlinkSync(snapshotLockPathFor(dbPath)); } catch { /* released by other means */ }
+    unlinkWithRetry(snapshotLockPathFor(dbPath), 'snapshot lock');
   }
 }
 

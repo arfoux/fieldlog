@@ -128,7 +128,7 @@ if [ "$RUN" = "1" ]; then
   pins
   TMPD="${TMPDIR:-${TEMP:-${TMP:-/tmp}}}"
   [ -d "$TMPD" ] || { echo "[bench-check] state dir missing: $TMPD" >&2; exit 1; }
-  LOG="$TMPD/bench-check-$BENCH-$N.log"
+  LOG="$(mktemp "${TMPD%/}/bench-check-XXXXXX")" || { echo "[bench-check] cannot create log under $TMPD" >&2; exit 1; }
   bun "$BENCH_FILE" "$N" >"$LOG" 2>&1
   STATUS=$?
   cat "$LOG"

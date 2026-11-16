@@ -579,7 +579,9 @@ export function openStore(path: string): EventStore {
       // (post-truncate). Clearing here would wipe a healthy read-model.
       // Per-event transaction: one poison event rolls back alone instead of
       // starving the tail behind it. The skip count is returned so callers
-      // can surface poison instead of silently losing it.
+      // can surface poison instead of silently losing it. Operational
+      // failures (SQLITE_BUSY, I/O, FULL, lock errors) are rethrown: counting
+      // them as skipped would hide events from every read model query.
       let applied = 0;
       let skipped = 0;
       for (const ev of [...events].sort((a, b) => a.seq - b.seq)) {
@@ -593,12 +595,16 @@ export function openStore(path: string): EventStore {
           route(ev);
           db.exec('COMMIT');
           applied += 1;
-        } catch {
+        } catch (err) {
           try {
             db.exec('ROLLBACK');
           } catch {
             /* already rolled back */
           }
+          const poison =
+            err instanceof Error &&
+            (err.message.startsWith('tamper rejected:') || err.message.startsWith('entry rejected:'));
+          if (!poison) throw err;
           skipped += 1;
         }
       }

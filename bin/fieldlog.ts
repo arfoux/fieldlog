@@ -26,6 +26,28 @@ function usage(): string {
   ].join('\n');
 }
 
+function helpFor(sub?: string): string {
+  const details: Record<string, string[]> = {
+    serve: [
+      'serve options:',
+      '  --port <n>          listen port (0 = ephemeral, default 8091)',
+      '  --file <relay.log>  JSONL persistence path (default relay.log)',
+      '  --trust <id=pub.pem>  trust a device key (repeatable)',
+      '  --unsigned          open relay for local development only',
+    ],
+    sync: [
+      'sync options:',
+      '  --file <app.db>     kernel database to sync',
+      '  --relay <ws url>    relay endpoint',
+      '  --key <priv.pem>    device private key (signed mode)',
+      '  --as <device>       device id matching --key',
+      '  --unsigned          unsigned mode for local development only',
+    ],
+    demo: ['demo runs the two-node signed-mode example; it takes no options.'],
+  };
+  return [usage(), ...(sub ? details[sub] ?? [] : [])].join('\n');
+}
+
 function arg(args: string[], name: string, def?: string): string | undefined {
   const i = args.indexOf(name);
   if (i < 0) return def;
@@ -136,6 +158,14 @@ async function cmdDemo(): Promise<void> {
 }
 
 const [cmd, ...rest] = Bun.argv.slice(2);
+if (cmd === '--help' || cmd === '-h') {
+  writeSync(1, helpFor() + '\n');
+  process.exit(0);
+}
+if ((cmd === 'serve' || cmd === 'sync' || cmd === 'demo') && (rest.includes('--help') || rest.includes('-h'))) {
+  writeSync(1, helpFor(cmd) + '\n');
+  process.exit(0);
+}
 if (cmd === 'serve') await cmdServe(rest);
 else if (cmd === 'sync') await cmdSync(rest);
 else if (cmd === 'demo') await cmdDemo();

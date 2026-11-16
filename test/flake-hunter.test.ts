@@ -69,7 +69,8 @@ describe('flake-hunter --from-log classifier', () => {
   });
 
   it('missing log file is a usage error (exit 1)', () => {
-    const r = run(['--from-log', join(tmpdir(), 'fieldlog-flakehunter-nope.log')]);
+    const privateDir = mkdtempSync(join(tmpdir(), 'fieldlog-flakehunter-missing-'));
+    const r = run(['--from-log', join(privateDir, 'definitely-missing.log')]);
     assert.equal(r.code, 1);
   });
 

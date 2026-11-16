@@ -1,6 +1,6 @@
 // Reorder resurrection: an undo/transition that arrives before its target
 // parks (records / unknown-entry conflict) and must re-resolve when the
-// target lands later. No stuck voided=0, no stuck IOU state, either order.
+// target lands later. No stuck voided=0, no stuck unresolved state, either order.
 import { describe, it } from 'bun:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync } from 'node:fs';

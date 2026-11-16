@@ -4,9 +4,10 @@
 
 ```sh
 bun install
-bun test            # full suite (258 tests, pinned 2026-11-16 in docs/conformance-gate.md)
+bun test            # full suite (floor 266 pass, scripts/conformance-gate.sh @ 2026-11-17)
 bun run build       # typecheck via tsc -p tsconfig.json
 bun bin/fieldlog.ts demo   # end-to-end smoke: 2-node roundtrip
+bun run check:surface # published surface: links, images, shipped docs
 ```
 
 Requires: `bun` >= 1.0 (see [docs/install](docs/install.md)).
@@ -17,8 +18,8 @@ Requires: `bun` >= 1.0 (see [docs/install](docs/install.md)).
    before touching `src/` — the contracts there are binding.
 2. Change code + the test pinning its behavior (one behavior = one test).
    New doc claims must point at code file:line.
-3. `bun test` on touched files first; full suite + `bun run build`
-   before the PR.
+3. `bun test` on touched files first; full suite + `bun run build` +
+   `bun run check:surface` before the PR.
 4. Small commits, clear messages (`<area>: <what + why>`).
    Write a CHANGELOG entry under `Unreleased` for user-visible changes.
 5. PR: describe before/after behavior + run evidence

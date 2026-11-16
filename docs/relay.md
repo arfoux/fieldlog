@@ -3,7 +3,7 @@
 Native websocket transport over `Bun.serve`, zero dependencies
 (`src/relay.ts`). The relay stays simple: accept raw logs, broadcast, store.
 
-## `WsRelayServer` (`src/relay.ts:14-27,62-...`)
+## `WsRelayServer` (`src/relay.ts:34`, `:90`)
 
 ```ts
 interface WsRelayServerOpts {
@@ -39,14 +39,14 @@ broadcast is only a hint; pull is the source of truth.
 
 > CURSORS ARE POSITIONAL, NOT STABLE IDS. `pull(since)` serves
 > `order.slice(since)` with `cursor = order.length`
-> (`src/relay.ts:463-464`): a restart that skips corrupt JSONL lines on
+> (`src/relay.ts:544,552,560`): a restart that skips corrupt JSONL lines on
 > reload, or a persist failure that splices the tail back
-> (`src/relay.ts:515-523`), shifts every later position with no
+> (`src/relay.ts:674-682`), shifts every later position with no
 > epoch/generation check. After any relay restart or failed push,
 > re-pull from an older cursor and let UUID idempotence sort it out —
 > resuming from a pre-restart cursor can silently skip live events.
 
-## `WsRelayClient` (`src/relay.ts:551-559,571-856`)
+## `WsRelayClient` (`src/relay.ts:730`)
 
 ```ts
 interface WsRelayClientOpts { baseMs?: number; maxMs?: number; maxRetries?: number;

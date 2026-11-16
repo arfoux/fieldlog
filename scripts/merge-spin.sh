@@ -78,7 +78,7 @@ git rev-parse --verify --quiet "refs/heads/$SPIN" >/dev/null \
 
 # 4. ff-only possible: main must be an ancestor of spin ...
 git merge-base --is-ancestor main "$SPIN" \
-  || fail "non-fast-forward -- main is not an ancestor of '$SPIN' (needs rebase, see docs/merge-runner.md)"
+  || fail "non-fast-forward -- main is not an ancestor of '$SPIN' (needs rebase, see docs/internal/merge-runner.md)"
 # ... and there must be something to merge.
 [ "$(git rev-parse main)" != "$(git rev-parse "$SPIN")" ] \
   || fail "nothing to merge -- '$SPIN' already equals main"

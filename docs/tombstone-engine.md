@@ -9,9 +9,9 @@ surface, so there is no schema migration and old replicas replay cleanly.
 ## contract
 
 - Soft-delete is a compensating event, never a rewrite. `hide` appends
-  `tombstone.hide` (`src/tombstone.ts:109`); the target line stays in the log
-  (auditable, syncable, replayable) and readers exclude it via `isHidden` /
-  `hiddenIds` (`src/tombstone.ts:84`, `:93`). `show` (`src/tombstone.ts:128`)
+  `tombstone.hide` (`src/tombstone.ts:164`); the target line stays in the log
+  (auditable, syncable, replayable) and readers exclude it via `isHidden`
+  (`src/tombstone.ts:97`) / `hiddenIds` (`:88`). `show` (`src/tombstone.ts:209`)
   appends `tombstone.show` and lifts the hide. Fold is seq-ordered, so a hide
   that arrives before its target still converges on replay.
 - Tombstones are ordinary events: they travel through `sync` to peers and
@@ -19,14 +19,14 @@ surface, so there is no schema migration and old replicas replay cleanly.
 - Fail-fast like `checkAppend`: `hide` on an unknown id throws
   `ERR_UNKNOWN_TARGET` and `show` on a non-hidden id throws `ERR_NOT_HIDDEN`
   *before* appending, so a typo never leaves a poison line behind.
-- GC-guard (`guardSeal`, `src/tombstone.ts:180`) clamps a truncate seal so it
+- GC-guard (`guardSeal`, `src/tombstone.ts:264`) clamps a truncate seal so it
   never (a) removes unacked/unapplied data (delegates to `clampSealToStored`),
   (b) sweeps a legally-held event, or (c) splits a hide/target pair across
   the sweep boundary. A split seal clamps below *both* seqs (fixpoint: one
   clamp can expose the next split). Returns `{ effective, held, pairs }` so
   the caller reports held-vs-swept honestly; `effective 0` means sweep nothing.
 - Legal-hold is partial and local. Partial: per event id in `_meta`
-  (`hold` / `release` / `isHeld` / `holds`, `src/tombstone.ts:145-161`), so one
+  (`hold` / `release` / `isHeld` / `holds`, `src/tombstone.ts:229-248`), so one
   held seq defers only itself and everything above it — the prefix below still
   sweeps. Local: holds live in the device db like the snapshot seal; they do
   not sync. Set them per replica.
@@ -45,11 +45,11 @@ surface, so there is no schema migration and old replicas replay cleanly.
 
 | symbol | file:line | effect |
 |---|---|---|
-| `hide(k, id, {actor, reason})` | `src/tombstone.ts:109` | append `tombstone.hide`; throws `ERR_UNKNOWN_TARGET` first |
-| `show(k, store, id, {actor})` | `src/tombstone.ts:128` | append `tombstone.show`; throws `ERR_NOT_HIDDEN` first |
-| `isHidden / hiddenIds / listTombstones` | `src/tombstone.ts:93` / `:84` / `:62` | fold hides minus shows in seq order; bad bodies skipped |
-| `hold / release / isHeld / holds` | `src/tombstone.ts:145-161` | per-id local hold in `_meta` |
-| `guardSeal(store, logSeqs, sealed, ackSeq)` | `src/tombstone.ts:180` | safe seal + `{held, pairs}` report |
+| `hide(k, id, {actor, reason})` | `src/tombstone.ts:164` | append `tombstone.hide`; throws `ERR_UNKNOWN_TARGET` first |
+| `show(k, store, id, {actor})` | `src/tombstone.ts:209` | append `tombstone.show`; throws `ERR_NOT_HIDDEN` first |
+| `isHidden / hiddenIds / listTombstones` | `src/tombstone.ts:97` / `:88` / `:66` | fold hides minus shows in seq order; bad bodies skipped |
+| `hold / release / isHeld / holds` | `src/tombstone.ts:229-248` | per-id local hold in `_meta` |
+| `guardSeal(store, logSeqs, sealed, ackSeq)` | `src/tombstone.ts:264-306` | safe seal + `{held, pairs}` report |
 
 Wire `guardSeal` in front of `sweepLogFile`: sweep `report.effective`, and when
 `effective < sealed` tell the operator which `held` entries blocked and which

@@ -19,6 +19,7 @@ jobs:
         with:
           bun-version: 1.4.0
       - run: bun install
+      - run: bun run check:surface
       - run: bun run build
       - run: bun test
       - uses: actions/setup-node@v4
@@ -44,6 +45,7 @@ jobs:
         with:
           bun-version: 1.4.0
       - run: bun install
+      - run: bun run check:surface
       - run: bun run build
       - run: bun test
       - uses: actions/setup-node@v4
