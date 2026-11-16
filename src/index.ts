@@ -1,4 +1,4 @@
-// fieldlog v0.1 — offline-first kernel: append-only log + SQLite read-model + sync.
+// fieldlog — offline-first kernel: append-only log + SQLite read-model + sync.
 export { openLog, hashFor, canonicalOf, GENESIS_HASH } from './log.js';
 export type { LogEvent, AppendInput, AppendLog, VerifyResult } from './log.js';
 export { openHashChain, verifyChain, quarantinePathFor } from './hashchain.js';

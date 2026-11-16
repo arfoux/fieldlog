@@ -91,7 +91,9 @@ into queryable tables.
   [conformance-gate](docs/conformance-gate.md), [watchdog](docs/watchdog.md),
   [mismatch-stop](docs/mismatch-stop.md), [completion-protocol](docs/completion-protocol.md),
   [merge-runner](docs/merge-runner.md), [model-oracle](docs/model-oracle.md),
-  [compat-vectors](docs/compat-vectors.md), [decision-log](docs/decision-log.md)
+  [compat-vectors](docs/compat-vectors.md)
+- decisions: [design decisions](docs/decisions.md) — five standing calls;
+  [decision-log](docs/decision-log.md) — completed and dropped investigations
 
 ## Numbers, limits, contributing
 
