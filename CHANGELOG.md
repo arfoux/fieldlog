@@ -20,6 +20,7 @@ Untagged commits are folded into the next tag that shipped them.
 - Reliability: snapshot lock/target unlink retries transient Windows EPERM/EBUSY with descriptive errors, and `_meta` stamping uses the live connection instead of a second database handle; re-putting a quarantined CAS key archives the old evidence sidecar instead of orphaning it.
 - CLI/tests: `--help`/`-h` prints to stdout and exits 0; added regression tests for revocation fail-closed, replay classification, CAS evidence, snapshot retry and contract gaps; timing tests use sentinels/configurable budgets and guaranteed cleanup.
 - CI/packaging/docs: added a network-free published-surface check to CI and both publish jobs; the tarball now ships root policy docs plus `demo/`, `example/`, and `bench/`; maintainer runbooks moved to `docs/internal/` and README links made absolute. The conformance gate now accepts explicit `--allow` paths instead of an impossible two-file allowlist.
+- Release/tooling: a tag push now creates a GitHub Release only after both publish jobs succeed and a changelog section exists; `merge-spin.sh` derives its tag from `package.json`, the conformance gate denies generated/lock/VCS paths under any `--allow` prefix, the quickstart relay snippet uses temp files as documented, and the published-surface check verifies `bin` targets.
 
 ## v0.15.1 — github packages + rename
 

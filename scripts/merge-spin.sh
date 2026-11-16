@@ -7,9 +7,9 @@
 # contract:
 #   - merges <branch> into main with `git merge --ff-only` (never a merge commit)
 #   - REQUIRES `bun test` green on main BEFORE and AFTER the merge
-#   - creates exact tag v0.14.N where N = 2 + k
+#   - creates exact tag v<package.json version> (e.g. v0.15.1)
 #     (k = merge order, coordinated via coordinator inbox so two runners
-#     never claim the same N)
+#     never claim the same merge slot)
 #   - rejects on: dirty tree, non-ff, red pre-test, red post-test, tag clash
 #   - --dry-run executes every check up to (not including) the actual merge
 #     and exits 0 without mutating any branch, tag, or working tree
@@ -22,7 +22,7 @@ DRY_RUN=0
 usage() {
   echo "usage: scripts/merge-spin.sh --spin <branch> --order <k> [--dry-run]" >&2
   echo "  --spin   spin branch to merge into main" >&2
-  echo "  --order  merge order k (non-negative int); tag is v0.14.\$((2+k))" >&2
+  echo "  --order  merge order k (non-negative int); tag is v\$(package.json version)" >&2
   echo "  --dry-run  run all pre-merge checks, stop before the actual merge" >&2
 }
 
@@ -42,15 +42,16 @@ case "$ORDER" in
   *[!0-9]*|"") echo "error: --order must be a non-negative integer, got '$ORDER'" >&2; exit 2 ;;
 esac
 
-N=$((2 + ORDER))
-TAG="v0.14.$N"
-case "$TAG" in
-  v0.14.[0-9]*) ;;
-  *) echo "error: generated tag '$TAG' violates exact format v0.14.N" >&2; exit 2 ;;
-esac
-
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
+
+# Tag follows the published version so the publish jobs accept it. --order
+# remains a coordination token; it no longer encodes a release-train number.
+TAG="v$(node -p "require('./package.json').version")"
+case "$TAG" in
+  v[0-9]*.[0-9]*.[0-9]*) ;;
+  *) echo "error: generated tag '$TAG' is not vMAJOR.MINOR.PATCH" >&2; exit 2 ;;
+esac
 
 fail() { echo "REJECT: $1" >&2; exit 1; }
 info() { echo "$1"; }
@@ -83,9 +84,9 @@ git merge-base --is-ancestor main "$SPIN" \
 [ "$(git rev-parse main)" != "$(git rev-parse "$SPIN")" ] \
   || fail "nothing to merge -- '$SPIN' already equals main"
 
-# 5. tag must be free (clash = order already taken -> re-coordinate via inbox).
+# 5. tag must be free (clash = version already tagged or stale order claim).
 git rev-parse --verify --quiet "refs/tags/$TAG" >/dev/null \
-  && fail "tag $TAG already exists -- merge order $ORDER taken, re-coordinate via inbox"
+  && fail "tag $TAG already exists -- version already released or merge order $ORDER stale; re-coordinate via inbox"
 info "merge-runner: tag $TAG free"
 
 # 6. PRE gate: bun test green on main, before merge.
